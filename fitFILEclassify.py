@@ -89,7 +89,7 @@ for j in range(t1w+1):
         dirnm='Z:/DingXu/ZTF_jkf/alldata/'+str(int(sourceid)//w).zfill(4)
         filename = dirnm+'/'+str(sourceid).zfill(7)+'.csv'
         
-        if os.path.getsize(filename)>100 and int(sourceid)>100:#
+        if os.path.getsize(filename)>100 and int(sourceid)>0:#
             if gmag<20:
                 print(dat[ID,24].upper())
                 print(sourceid)
@@ -120,7 +120,7 @@ for j in range(t1w+1):
                         except:
                             print('it is error!')
                             
-                            
+                           
                 if (dat[ID,24].upper()=='DSCT'):
                     pm,d1 = ztf_2(filename, P)
   
@@ -273,6 +273,6 @@ for j in range(t1w+1):
                             np.savetxt('H:\\ZTFDATA\\Mira\\'+sourceid+'.txt', sx1sy1)
                         except:
                             print('it is error!') 
-                            
+                           
         ID+=1
             
