@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-path = 'H:\\ZTFDATA\\'
+path = 'H:\\ZTFDATA\\SR'  
 mypath = []
 count = 0
 for root, dirs, files in os.walk(path):
@@ -25,7 +25,8 @@ for root, dirs, files in os.walk(path):
 lenpath = len(mypath)
 testdata = []
 for i in range(lenpath):
-    #print(mypath[i])
+    if i==20000:
+        break
     try:
         data = np.loadtxt(mypath[i])
         # print(data.shape)
@@ -38,7 +39,7 @@ for i in range(lenpath):
         listliedata.append(0)
         listliedata.append(0)
         listliedata.append(0)
-        listliedata.append(4)
+        listliedata.append(7)
     
         lightydata = np.array(listliedata)
     #print(lightydata.shape)
@@ -51,5 +52,5 @@ for i in range(lenpath):
     
 lightdata = np.array(testdata)
 
-savedata = np.savetxt('others.txt', lightdata)
+savedata = np.savetxt('SR.txt', lightdata)
 
