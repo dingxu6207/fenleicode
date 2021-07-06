@@ -13,8 +13,8 @@ from PyAstronomy.pyasl import foldAt
 from scipy import interpolate  
 from tensorflow.keras.models import load_model
 
-path = 'E:\\shunbianyuan\\phometry\\pipelinecode\\fenlei\\EW\\'
-file = 'AP3292116_0.4637447.csv'
+path = 'E:\\shunbianyuan\\phometry\\pipelinecode\\fenlei\\DSCT\\'
+file = 'AP3275972_0.0983621.csv'
 data = pd.read_csv(path+file, sep = ',' )
 
 hjdmag = data[['hjd', 'mag']]
@@ -25,7 +25,7 @@ npmag = nphjmag[:,1]
 
 
 
-P = 0.4637447
+P = 0.0983621
 phases = foldAt(npjd, P)
 sortIndi = np.argsort(phases)
 phases = phases[sortIndi]
@@ -70,7 +70,7 @@ sx1 = np.linspace(0,1,100)
 sy1 = np.interp(sx1, phasemag[:,0], phasemag[:,1])
 #plt.plot(sx1, sy1,'.')
 
-model = load_model('ztfmodule.hdf5')#eclipseothers,ztfmodule
+model = load_model('resultztfmodule5.hdf5')#eclipseothers,ztfmodule
 nparraydata = np.reshape(sy1,(1,100))
 prenpdata = model.predict(nparraydata)
 

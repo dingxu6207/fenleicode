@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-path = 'H:\\ZTFDATA\\SR'  
+path = 'H:\\ZTFDATA\\ztfvarable\\BYDra\\'  
 mypath = []
 count = 0
 for root, dirs, files in os.walk(path):
@@ -39,7 +39,7 @@ for i in range(lenpath):
         listliedata.append(0)
         listliedata.append(0)
         listliedata.append(0)
-        listliedata.append(7)
+        listliedata.append(0)
     
         lightydata = np.array(listliedata)
     #print(lightydata.shape)
@@ -52,5 +52,5 @@ for i in range(lenpath):
     
 lightdata = np.array(testdata)
 
-savedata = np.savetxt('SR.txt', lightdata)
+savedata = np.savetxt('BYDra.txt', lightdata)
 

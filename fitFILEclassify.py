@@ -78,7 +78,7 @@ dat=np.genfromtxt('Table2data.txt',dtype=str)
 
 datemp = []
 tot=dat.shape[0]
-ID=0
+ID=340000
 for j in range(t1w+1):
     for i in range(w):
         if ID>(tot-1):
@@ -89,7 +89,7 @@ for j in range(t1w+1):
         dirnm='Z:/DingXu/ZTF_jkf/alldata/'+str(int(sourceid)//w).zfill(4)
         filename = dirnm+'/'+str(sourceid).zfill(7)+'.csv'
         
-        if os.path.getsize(filename)>100 and int(sourceid)>0:#
+        if os.path.getsize(filename)>100:#
             if gmag<20:
 #                print(dat[ID,24].upper())
 #                print(sourceid)
@@ -121,21 +121,21 @@ for j in range(t1w+1):
 #                            print('it is error!')
 #                            
 #                           
-                if (dat[ID,24].upper()=='DSCT'):
-                    pm,d1 = ztf_2(filename, P)
-  
-                    if d1 <= 20:
-                        #np.savetxt('H:\\ZTFDATA\\EA\\'+sourceid+'.txt', pm)
-                        try:
-                            sx1 = np.linspace(0,1,100)
-                            sy1 = np.interp(sx1, pm[:,0], pm[:,1])
-                            
-                            sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
-                            sx1sy1 = sx1sy1.T
-                            np.savetxt('H:\\ZTFDATA\\DSCT\\'+sourceid+'.txt', sx1sy1)
-                            print(sourceid)                    
-                        except:
-                            print('it is error!')
+#                if (dat[ID,24].upper()=='DSCT'):
+#                    pm,d1 = ztf_2(filename, P)
+#  
+#                    if d1 <= 20:
+#                        #np.savetxt('H:\\ZTFDATA\\EA\\'+sourceid+'.txt', pm)
+#                        try:
+#                            sx1 = np.linspace(0,1,100)
+#                            sy1 = np.interp(sx1, pm[:,0], pm[:,1])
+#                            
+#                            sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
+#                            sx1sy1 = sx1sy1.T
+#                            np.savetxt('H:\\ZTFDATA\\DSCT\\'+sourceid+'.txt', sx1sy1)
+#                            print(sourceid)                    
+#                        except:
+#                            print('it is error!')
                     
 #                if (dat[ID,24].upper()=='RRC'):
 #                    pm,d1 = ztf_2(filename, P)
@@ -153,35 +153,36 @@ for j in range(t1w+1):
 #                        except:
 #                            print('it is error!')
                             
-#                if (dat[ID,24].upper()=='RR'):
-#                    pm,d1 = ztf_2(filename, P)
-#  
-#                    if d1 <= 20:
-#                        #np.savetxt('H:\\ZTFDATA\\EA\\'+sourceid+'.txt', pm)
-#                        try:
-#                            sx1 = np.linspace(0,1,100)
-#                            sy1 = np.interp(sx1, pm[:,0], pm[:,1])
+                if (dat[ID,24].upper()=='RR'):
+                    pm,d1 = ztf_2(filename, P)
+  
+                    if d1 <= 20:
+                        #np.savetxt('H:\\ZTFDATA\\EA\\'+sourceid+'.txt', pm)
+                        try:
+                            sx1 = np.linspace(0,1,100)
+                            sy1 = np.interp(sx1, pm[:,0], pm[:,1])
+                            
+                            sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
+                            sx1sy1 = sx1sy1.T
+                            np.savetxt('H:\\ZTFDATA\\RR\\'+sourceid+'.txt', sx1sy1)
+                        except:
+                            print('it is error!')
 #                            
-#                            sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
-#                            sx1sy1 = sx1sy1.T
-#                            np.savetxt('H:\\ZTFDATA\\RR\\'+sourceid+'.txt', sx1sy1)
-#                        except:
-#                            print('it is error!')
-#                            
-#                if (dat[ID,24].upper()=='SR'):
-#                    pm,d1 = ztf_2(filename, P)
-#  
-#                    if d1 <= 20:
-#                        #np.savetxt('H:\\ZTFDATA\\EA\\'+sourceid+'.txt', pm)
-#                        try:
-#                            sx1 = np.linspace(0,1,100)
-#                            sy1 = np.interp(sx1, pm[:,0], pm[:,1])
-#                            
-#                            sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
-#                            sx1sy1 = sx1sy1.T
-#                            np.savetxt('H:\\ZTFDATA\\SR\\'+sourceid+'.txt', sx1sy1)
-#                        except:
-#                            print('it is error!')   
+                if (dat[ID,24].upper()=='SR'):
+                    pm,d1 = ztf_2(filename, P)
+  
+                    if d1 <= 20:
+                        #np.savetxt('H:\\ZTFDATA\\EA\\'+sourceid+'.txt', pm)
+                        try:
+                            sx1 = np.linspace(0,1,100)
+                            sy1 = np.interp(sx1, pm[:,0], pm[:,1])
+                            
+                            sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
+                            sx1sy1 = sx1sy1.T
+                            np.savetxt('H:\\ZTFDATA\\SR\\'+sourceid+'.txt', sx1sy1)
+                            print('it is ok')
+                        except:
+                            print('it is error!')   
 #                            
 #                if (dat[ID,24].upper()=='RSCVN'):
 #                    pm,d1 = ztf_2(filename, P)
