@@ -12,7 +12,7 @@ from PyAstronomy.pyTiming import pyPDM
 from PyAstronomy.pyasl import foldAt
 
 path = 'E:\\shunbianyuan\\phometry\\pipelinecode\\fenlei\\EA\\'
-file = '145041.csv'
+file = '145041_2.5890744.csv'
 data = pd.read_csv(path+file, sep = ',' )
 
 hjdmag = data[['hjd', 'mag']]
@@ -33,6 +33,16 @@ plt.plot(f2, t2, 'gp-')
 plt.xlabel('frequency',fontsize=14)
 plt.ylabel('Theta', fontsize=14)
 print(f2[np.argmin(t2)])
+
+
+plt.figure(5)
+plt.plot(t,y,'.')
+plt.xlabel('hjd',fontsize=14)
+plt.ylabel('mag', fontsize=14)
+ax = plt.gca()
+ax.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
+ax.invert_yaxis() #y轴反向
+
 
 valuet = np.sort(t2[t2<0.5])
 print(valuet)

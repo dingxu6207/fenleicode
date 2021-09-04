@@ -12,9 +12,10 @@ from PyAstronomy.pyTiming import pyPDM
 from PyAstronomy.pyasl import foldAt
 from scipy import interpolate  
 from tensorflow.keras.models import load_model
+from scipy.fftpack import fft,ifft
 
-path = 'E:\\shunbianyuan\\phometry\\pipelinecode\\fenlei\\ROT\\'
-file = 'AP16272268_0.4970278.csv'
+path = 'E:\\shunbianyuan\\phometry\\pipelinecode\\fenlei\\testdata\\EW\\'
+file = 'AP2893311_0.3076835.csv'
 data = pd.read_csv(path+file, sep = ',' )
 
 hjdmag = data[['hjd', 'mag']]
@@ -25,38 +26,70 @@ npmag = nphjmag[:,1]
 
 
 
-P = 0.4970278
+P = 0.3076835
 phases = foldAt(npjd, P)
 sortIndi = np.argsort(phases)
 phases = phases[sortIndi]
 resultmag = npmag[sortIndi]
-resultmag = resultmag - np.mean(resultmag)
+resultmag = resultmag
+
+
+N = 100
+x = np.linspace(0,1,N)
+y = np.interp(x, phases, resultmag) 
+
+fft_y = fft(y) 
+half_x = x[range(int(N/2))]  #取一半区间
+abs_y = np.abs(fft_y) 
+angle_y = np.angle(fft_y)            #取复数的角度
+normalization_y = abs_y/N            #归一化处理（双边频谱）                              
+normalization_half_y = normalization_y[range(int(N/2))] 
+normalization_half_y[0] = P/10
+
+
+plt.figure(0)
+plt.plot(half_x, normalization_half_y,'.')
+
 
 plt.figure(1)
 plt.plot(phases, resultmag,'.')
+ax = plt.gca()
+ax.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
+ax.invert_yaxis() #y轴反向
 
-listmag = resultmag.tolist()
-listmag.extend(listmag)
+sy1 = np.copy(normalization_half_y)
+model = load_model('resultztfmodel.hdf5')#eclipseothers,ztfmodule
+nparraydata = np.reshape(sy1,(1,50))
+prenpdata = model.predict(nparraydata)
+
+index = np.argmax(prenpdata[0])
+print(index)
+
+if index == 0:
+    plt.title('Prediction is BYDra')
     
-listphrase = phases.tolist()
-listphrase.extend(listphrase+np.max(1)) 
+if index == 1:
+    plt.title('Prediction is DSCT')
+
+if index == 2:
+    plt.title('Prediction is EA')
+
+if index == 3:
+    plt.title('Prediction is EW')
+
+if index == 5:
+    plt.title('Prediction is RRAB')
     
+if index == 6:
+    plt.title('Prediction is RRC')
     
-nplistmag = np.array(listmag)
-sortmag = np.sort(nplistmag)
-maxindex = np.median(sortmag[-15:])
-indexmag = listmag.index(maxindex)
+if index == 7:
+    plt.title('Prediction is RSCVN')  
     
-nplistphrase = np.array(listphrase)
-nplistphrase = nplistphrase-nplistphrase[indexmag]
-nplistmag = np.array(listmag)
-    
-phasemag = np.vstack((nplistphrase, nplistmag)) #纵向合并矩阵
-phasemag = phasemag.T
-    
-phasemag = phasemag[phasemag[:,0]>=0]
-phasemag = phasemag[phasemag[:,0]<=1]
-    
+if index == 8:
+    plt.title('Prediction is SR') 
+
+''' 
 s=np.diff(phasemag[:,1],2).std()/np.sqrt(6)
 
 
@@ -101,4 +134,4 @@ if index == 4:
     
 if index == 5:
     plt.title('Prediction is SR')
-    
+'''
