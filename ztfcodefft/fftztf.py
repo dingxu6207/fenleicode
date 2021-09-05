@@ -77,69 +77,75 @@ for j in range(t1w+1):
         #print(filename)
         
         if os.path.getsize(filename)>100:
-            if (dat[ID,24].upper()=='EA'):
+#            if (dat[ID,24].upper()=='EA'):
+#                sx1,sy1 = ztfdata(filename, P)
+#                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
+#                sx1sy1 = sx1sy1.T
+#                if len(sx1) > 10:
+#                    np.savetxt('I:\\ZTFDATA\\FFTDATA\\EA\\'+sourceid+'.txt', sx1sy1)
+#            
+#            if (dat[ID,24].upper()=='EW' and ID<50000):
+#                sx1,sy1 = ztfdata(filename, P)
+#                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
+#                sx1sy1 = sx1sy1.T
+#                if len(sx1) > 10:
+#                    np.savetxt('I:\\ZTFDATA\\FFTDATA\\EW\\'+sourceid+'.txt', sx1sy1)
+#        
+#            if (dat[ID,24].upper()=='DSCT'):
+#                sx1,sy1 = ztfdata(filename, P)
+#                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
+#                sx1sy1 = sx1sy1.T
+#                if len(sx1) > 10:
+#                    np.savetxt('I:\\ZTFDATA\\FFTDATA\\DSCT\\'+sourceid+'.txt', sx1sy1)
+#            
+#            if (dat[ID,24].upper()=='BYDRA' and ID<200000):
+#                sx1,sy1 = ztfdata(filename, P)
+#                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
+#                sx1sy1 = sx1sy1.T
+#                if len(sx1) > 10:
+#                    np.savetxt('I:\\ZTFDATA\\FFTDATA\\BYDRA\\'+sourceid+'.txt', sx1sy1)
+#            
+#            if (dat[ID,24].upper()=='RR'):
+#                sx1,sy1 = ztfdata(filename, P)
+#                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
+#                sx1sy1 = sx1sy1.T
+#                if len(sx1) > 10:
+#                    np.savetxt('I:\\ZTFDATA\\FFTDATA\\RRAB\\'+sourceid+'.txt', sx1sy1)
+#                
+#            if (dat[ID,24].upper()=='SR' and ID<200000):
+#                sx1,sy1 = ztfdata(filename, P)
+#                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
+#                sx1sy1 = sx1sy1.T
+#                if len(sx1) > 10:
+#                    np.savetxt('I:\\ZTFDATA\\FFTDATA\\SR\\'+sourceid+'.txt', sx1sy1)
+#
+#            if (dat[ID,24].upper()=='RRC'):
+#                sx1,sy1 = ztfdata(filename, P)
+#                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
+#                sx1sy1 = sx1sy1.T
+#                if len(sx1) > 10:
+#                    np.savetxt('I:\\ZTFDATA\\FFTDATA\\RRC\\'+sourceid+'.txt', sx1sy1)
+#                
+#            if (dat[ID,24].upper()=='RSCVN' and ID<200000):
+#                sx1,sy1 = ztfdata(filename, P)
+#                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
+#                sx1sy1 = sx1sy1.T
+#                if len(sx1) > 10:
+#                    np.savetxt('I:\\ZTFDATA\\FFTDATA\\RSCVN\\'+sourceid+'.txt', sx1sy1)
+#
+#            if (dat[ID,24].upper()=='MIRA'):
+#                sx1,sy1 = ztfdata(filename, P)
+#                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
+#                sx1sy1 = sx1sy1.T
+#                if len(sx1) > 10:
+#                    np.savetxt('I:\\ZTFDATA\\FFTDATA\\MIRA\\'+sourceid+'.txt', sx1sy1)
+#            
+            if (dat[ID,24].upper()=='CEP' or dat[ID,24].upper()=='CEPII'):
                 sx1,sy1 = ztfdata(filename, P)
                 sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
                 sx1sy1 = sx1sy1.T
                 if len(sx1) > 10:
-                    np.savetxt('I:\\ZTFDATA\\FFTDATA\\EA\\'+sourceid+'.txt', sx1sy1)
-            
-            if (dat[ID,24].upper()=='EW' and ID<50000):
-                sx1,sy1 = ztfdata(filename, P)
-                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
-                sx1sy1 = sx1sy1.T
-                if len(sx1) > 10:
-                    np.savetxt('I:\\ZTFDATA\\FFTDATA\\EW\\'+sourceid+'.txt', sx1sy1)
-        
-            if (dat[ID,24].upper()=='DSCT'):
-                sx1,sy1 = ztfdata(filename, P)
-                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
-                sx1sy1 = sx1sy1.T
-                if len(sx1) > 10:
-                    np.savetxt('I:\\ZTFDATA\\FFTDATA\\DSCT\\'+sourceid+'.txt', sx1sy1)
-            
-            if (dat[ID,24].upper()=='BYDRA' and ID<200000):
-                sx1,sy1 = ztfdata(filename, P)
-                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
-                sx1sy1 = sx1sy1.T
-                if len(sx1) > 10:
-                    np.savetxt('I:\\ZTFDATA\\FFTDATA\\BYDRA\\'+sourceid+'.txt', sx1sy1)
-            
-            if (dat[ID,24].upper()=='RR'):
-                sx1,sy1 = ztfdata(filename, P)
-                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
-                sx1sy1 = sx1sy1.T
-                if len(sx1) > 10:
-                    np.savetxt('I:\\ZTFDATA\\FFTDATA\\RRAB\\'+sourceid+'.txt', sx1sy1)
-                
-            if (dat[ID,24].upper()=='SR' and ID<200000):
-                sx1,sy1 = ztfdata(filename, P)
-                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
-                sx1sy1 = sx1sy1.T
-                if len(sx1) > 10:
-                    np.savetxt('I:\\ZTFDATA\\FFTDATA\\SR\\'+sourceid+'.txt', sx1sy1)
-
-            if (dat[ID,24].upper()=='RRC'):
-                sx1,sy1 = ztfdata(filename, P)
-                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
-                sx1sy1 = sx1sy1.T
-                if len(sx1) > 10:
-                    np.savetxt('I:\\ZTFDATA\\FFTDATA\\RRC\\'+sourceid+'.txt', sx1sy1)
-                
-            if (dat[ID,24].upper()=='RSCVN' and ID<200000):
-                sx1,sy1 = ztfdata(filename, P)
-                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
-                sx1sy1 = sx1sy1.T
-                if len(sx1) > 10:
-                    np.savetxt('I:\\ZTFDATA\\FFTDATA\\RSCVN\\'+sourceid+'.txt', sx1sy1)
-
-            if (dat[ID,24].upper()=='MIRA'):
-                sx1,sy1 = ztfdata(filename, P)
-                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
-                sx1sy1 = sx1sy1.T
-                if len(sx1) > 10:
-                    np.savetxt('I:\\ZTFDATA\\FFTDATA\\MIRA\\'+sourceid+'.txt', sx1sy1)
-            
+                    np.savetxt('I:\\ZTFDATA\\FFTDATA\\CEP\\'+sourceid+'.txt', sx1sy1)
         ID+=1
 
 

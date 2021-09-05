@@ -14,8 +14,8 @@ from scipy import interpolate
 from tensorflow.keras.models import load_model
 from scipy.fftpack import fft,ifft
 
-path = 'E:\\shunbianyuan\\phometry\\pipelinecode\\fenlei\\testdata\\EW\\'
-file = 'AP2893311_0.3076835.csv'
+path = 'E:\\shunbianyuan\\phometry\\pipelinecode\\fenlei\\testdata\\EA\\'
+file = 'AP2894392_0.694949.csv'
 data = pd.read_csv(path+file, sep = ',' )
 
 hjdmag = data[['hjd', 'mag']]
@@ -26,7 +26,7 @@ npmag = nphjmag[:,1]
 
 
 
-P = 0.3076835
+P = 0.694949
 phases = foldAt(npjd, P)
 sortIndi = np.argsort(phases)
 phases = phases[sortIndi]
@@ -58,7 +58,8 @@ ax.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
 ax.invert_yaxis() #y轴反向
 
 sy1 = np.copy(normalization_half_y)
-model = load_model('resultztfmodel.hdf5')#eclipseothers,ztfmodule
+#model = load_model('resultztfmodel.hdf5')#eclipseothers,ztfmodule
+model = load_model('modelall.hdf5')#eclipseothers,ztfmodule
 nparraydata = np.reshape(sy1,(1,50))
 prenpdata = model.predict(nparraydata)
 
@@ -77,6 +78,9 @@ if index == 2:
 if index == 3:
     plt.title('Prediction is EW')
 
+if index == 4:
+    plt.title('Prediction is MIRA')
+    
 if index == 5:
     plt.title('Prediction is RRAB')
     
@@ -89,6 +93,10 @@ if index == 7:
 if index == 8:
     plt.title('Prediction is SR') 
 
+    
+if index == 9:
+    plt.title('Prediction is CEP') 
+    
 ''' 
 s=np.diff(phasemag[:,1],2).std()/np.sqrt(6)
 
