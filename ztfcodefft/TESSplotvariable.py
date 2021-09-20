@@ -34,7 +34,7 @@ def readfits(fits_file):
     
 
 path = 'I:\\TESSDATA\\section1\\' 
-file = 'tess2018206045859-s0001-0000000025132265-0120-s_lc.fits'
+file = 'tess2018206045859-s0001-0000000149346418-0120-s_lc.fits'
 
 tbjd, fluxes = readfits(path+file)
 mag = -2.5*np.log10(fluxes)

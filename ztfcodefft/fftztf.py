@@ -91,7 +91,7 @@ for j in range(t1w+1):
                 if len(sx1) > 10:
                     np.savetxt('I:\\ZTFDATA\\FFTDATA1\\EA\\'+sourceid+'.txt', sx1sy1)
             
-            if (dat[ID,24].upper()=='EW' and ID<200000):
+            if (dat[ID,24].upper()=='EW' and ID<100000):
                 sx1,sy1 = ztfdata(filename, P)
                 sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
                 sx1sy1 = sx1sy1.T
