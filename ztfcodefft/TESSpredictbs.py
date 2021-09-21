@@ -130,7 +130,7 @@ def computebindata2(lendata):
         bindata = int(lendata/3)
     else:
         bindata = int(lendata/2)
-    return 2*bindata
+    return bindata*2
 
 def computePDM(f0, time, fluxes, flag):
     period = 1/f0
@@ -169,22 +169,21 @@ def pholddata(per, times, fluxes):
     return phases, resultmag
 
 path = 'I:\\TESSDATA\\section1\\' 
-file = 'tess2018206045859-s0001-0000000031655792-0120-s_lc.fits'
+file = 'tess2018206045859-s0001-0000000031925242-0120-s_lc.fits'
 
 tbjd, fluxes = readfits(path+file)
-comper, wrongP, maxpower = computeperiod(tbjd, fluxes)
-#comper, wrongP, maxpower = computeperiodbs(tbjd, fluxes)
+comper0, wrongP, maxpower = computeperiod(tbjd, fluxes)
+comper, wrongP, maxpower = computeperiodbs(tbjd, fluxes)
+
+pdmp0, delta0  = computePDM(1/comper0, tbjd, fluxes, 1)
 pdmp, delta  = computePDM(1/comper, tbjd, fluxes, 1)
 
-if delta <0.5 and pdmp < 15:
-    pdmp2, delta2  = computePDM(1/(comper*2), tbjd, fluxes, 2)
-    print(delta/delta2)
-    if (delta/delta2)<1.5:
-        p = comper
-        phases, resultmag = pholddata(comper, tbjd, fluxes)
-    else:
-        p = comper*2 
-        phases, resultmag = pholddata(comper*2, tbjd, fluxes)
+if delta0 < delta:
+    phases, resultmag = pholddata(comper0, tbjd, fluxes)
+    p = comper0
+else:
+    phases, resultmag = pholddata(comper, tbjd, fluxes)
+    p = comper
 
 index = classifyfftdata(phases, resultmag, p)
 print(index)
@@ -195,3 +194,8 @@ plt.ylabel('mag',fontsize=14)
 ax1 = plt.gca()
 ax1.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
 ax1.invert_yaxis() #y轴反向
+
+plt.figure(1)
+plt.plot(tbjd, fluxes, '.')
+plt.xlabel('time',fontsize=14)
+plt.ylabel('flux',fontsize=14)

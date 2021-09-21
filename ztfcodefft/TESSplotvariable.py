@@ -34,11 +34,16 @@ def readfits(fits_file):
     
 
 path = 'I:\\TESSDATA\\section1\\' 
-file = 'tess2018206045859-s0001-0000000149346418-0120-s_lc.fits'
+file = 'tess2018206045859-s0001-0000000031655792-0120-s_lc.fits'
 
 tbjd, fluxes = readfits(path+file)
 mag = -2.5*np.log10(fluxes)
 mag = mag-np.mean(mag)
+
+from astropy.timeseries import BoxLeastSquares
+model = BoxLeastSquares(tbjd, mag)
+results = model.autopower(0.16)
+print(results.period[np.argmax(results.power)])  
 
 plt.figure(0)
 plt.plot(tbjd, fluxes, '.')

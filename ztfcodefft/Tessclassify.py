@@ -97,7 +97,7 @@ def computeperiod(JDtime, targetflux):
     return period, wrongP, maxpower
 
 
-def computebindata(lendata):
+def computebindata(lendata, fg):
     
     if lendata>5000:
         bindata = int(lendata/100)
@@ -109,7 +109,11 @@ def computebindata(lendata):
         bindata = int(lendata/3)
     else:
         bindata = int(lendata/2)
-    return bindata
+    if fg == 1:
+        return bindata
+    if fg == 2:
+        return (bindata*2)
+    
 
 def computePDM(f0, time, fluxes, flag):
     period = 1/f0
@@ -124,9 +128,9 @@ def computePDM(f0, time, fluxes, flag):
     #bindata = 100
     lenmag = len(mag)
     if flag == 1:
-        bindata = computebindata(lenmag)
+        bindata = computebindata(lenmag, 1)
     elif flag == 2:
-        bindata = computebindata(lenmag/2)
+        bindata = computebindata(lenmag/2, 2)
         
     f2, t2 = P.pdmEquiBin(bindata, S)
     delta = np.min(t2)
@@ -148,17 +152,17 @@ def pholddata(per, times, fluxes):
     return phases, resultmag
 
 path = 'I:\\TESSDATA\\section1\\'
-bydrapath = 'I:\\TESSDATA\\section3variable\\BYDRA\\'
-dsctpath = 'I:\\TESSDATA\\section3variable\\DSCT\\'
-eapath = 'I:\\TESSDATA\\section3variable\\EA\\'
-ewpath = 'I:\\TESSDATA\\section3variable\\EW\\'
-mirapath = 'I:\\TESSDATA\\section3variable\\MIRA\\'
-rrabpath = 'I:\\TESSDATA\\section3variable\\RRAB\\'
-rrcpath = 'I:\\TESSDATA\\section3variable\\RRC\\'
-rscvnpath = 'I:\\TESSDATA\\section3variable\\RSCVN\\'
-srpath = 'I:\\TESSDATA\\section3variable\\SR\\'
-ceppath = 'I:\\TESSDATA\\section3variable\\CEP\\'
-unkownpath = 'I:\\TESSDATA\\section3variable\\UNKNOWN\\'
+bydrapath = 'I:\\TESSDATA\\section4variable\\BYDRA\\'
+dsctpath = 'I:\\TESSDATA\\section4variable\\DSCT\\'
+eapath = 'I:\\TESSDATA\\section4variable\\EA\\'
+ewpath = 'I:\\TESSDATA\\section4variable\\EW\\'
+mirapath = 'I:\\TESSDATA\\section4variable\\MIRA\\'
+rrabpath = 'I:\\TESSDATA\\section4variable\\RRAB\\'
+rrcpath = 'I:\\TESSDATA\\section4variable\\RRC\\'
+rscvnpath = 'I:\\TESSDATA\\section4variable\\RSCVN\\'
+srpath = 'I:\\TESSDATA\\section4variable\\SR\\'
+ceppath = 'I:\\TESSDATA\\section4variable\\CEP\\'
+unkownpath = 'I:\\TESSDATA\\section4variable\\UNKNOWN\\'
 count = 0
 for root, dirs, files in os.walk(path):
    for file in files:
@@ -175,15 +179,13 @@ for root, dirs, files in os.walk(path):
                if delta <0.5 and pdmp < 12:
                    pdmp2, delta2  = computePDM(1/(comper*2), tbjd, fluxes, 2)
            
-                   if (delta < delta2):
+                   if (delta/delta2)<1.5:
                        p = comper
                        phases, resultmag = pholddata(comper, tbjd, fluxes)
                    else:
                        p = comper*2 
                        phases, resultmag = pholddata(comper*2, tbjd, fluxes)
            
-
-                   
                    index = classifyfftdata(phases, resultmag, p)
            
                    if index == 0:
