@@ -103,8 +103,7 @@ def computeperiodbs(JDtime, targetflux):
     period = results.period[np.argmax(results.power)]
     return period, 0, 0
 
-
-def computebindata1(lendata):
+def computebindata(lendata, fg):
     
     if lendata>5000:
         bindata = int(lendata/100)
@@ -116,21 +115,12 @@ def computebindata1(lendata):
         bindata = int(lendata/3)
     else:
         bindata = int(lendata/2)
-    return bindata
-
-def computebindata2(lendata):
     
-    if lendata>5000:
-        bindata = int(lendata/100)
-    elif lendata>3000:
-        bindata = int(lendata/10)
-    elif lendata>400:
-        bindata = int(lendata/6)
-    elif lendata>200:
-        bindata = int(lendata/3)
-    else:
-        bindata = int(lendata/2)
-    return 2*bindata
+    if fg==1:
+        return bindata
+    if fg==2:
+        return (bindata*2)
+
 
 def computePDM(f0, time, fluxes, flag):
     period = 1/f0
@@ -145,9 +135,9 @@ def computePDM(f0, time, fluxes, flag):
     #bindata = 100
     lenmag = len(mag)
     if flag == 1:
-        bindata = computebindata1(lenmag)
+        bindata = computebindata(lenmag, 1)
     elif flag == 2:
-        bindata = computebindata2(lenmag/2)
+        bindata = computebindata(lenmag/2, 2)
         
     f2, t2 = P.pdmEquiBin(bindata, S)
     delta = np.min(t2)
@@ -169,7 +159,7 @@ def pholddata(per, times, fluxes):
     return phases, resultmag
 
 path = 'I:\\TESSDATA\\section1\\' 
-file = 'tess2018206045859-s0001-0000000031655792-0120-s_lc.fits'
+file = 'tess2018206045859-s0001-0000000278708134-0120-s_lc.fits'
 
 tbjd, fluxes = readfits(path+file)
 comper, wrongP, maxpower = computeperiod(tbjd, fluxes)
@@ -180,10 +170,10 @@ if delta <0.5 and pdmp < 15:
     pdmp2, delta2  = computePDM(1/(comper*2), tbjd, fluxes, 2)
     print(delta/delta2)
     if (delta/delta2)<1.5:
-        p = comper
+        p = pdmp
         phases, resultmag = pholddata(comper, tbjd, fluxes)
     else:
-        p = comper*2 
+        p = pdmp*2 
         phases, resultmag = pholddata(comper*2, tbjd, fluxes)
 
 index = classifyfftdata(phases, resultmag, p)
