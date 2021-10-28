@@ -16,7 +16,7 @@ import shutil
 from tensorflow.keras.models import load_model
 from scipy.fftpack import fft,ifft
 
-model = load_model('modelalls.hdf5')
+model = load_model('modelrot.hdf5')
 def classfiydata(phasemag):
     sx1 = np.linspace(0,1,100)
     sy1 = np.interp(sx1, phasemag[:,0], phasemag[:,1])
@@ -168,7 +168,7 @@ def pholddata(per, times, fluxes):
     resultmag = mag[sortIndi]
     return phases, resultmag
 
-path = 'I:\\TESSDATA\\section1\\' 
+path = 'J:\\TESSDATA\\section1\\' 
 file = 'tess2018206045859-s0001-0000000055269690-0120-s_lc.fits'
 
 tbjd, fluxes = readfits(path+file)
