@@ -16,7 +16,8 @@ import shutil
 from tensorflow.keras.models import load_model
 from scipy.fftpack import fft,ifft
 
-model = load_model('modelalls.hdf5')
+#model = load_model('modelalls.hdf5')
+model = load_model('modelrot.hdf5')
 def classfiydata(phasemag):
     sx1 = np.linspace(0,1,100)
     sy1 = np.interp(sx1, phasemag[:,0], phasemag[:,1])
@@ -151,18 +152,17 @@ def pholddata(per, times, fluxes):
     resultmag = mag[sortIndi]
     return phases, resultmag
 
-path = 'I:\\TESSDATA\\section1\\'
-bydrapath = 'I:\\TESSDATA\\section4variable\\BYDRA\\'
-dsctpath = 'I:\\TESSDATA\\section4variable\\DSCT\\'
-eapath = 'I:\\TESSDATA\\section4variable\\EA\\'
-ewpath = 'I:\\TESSDATA\\section4variable\\EW\\'
-mirapath = 'I:\\TESSDATA\\section4variable\\MIRA\\'
-rrabpath = 'I:\\TESSDATA\\section4variable\\RRAB\\'
-rrcpath = 'I:\\TESSDATA\\section4variable\\RRC\\'
-rscvnpath = 'I:\\TESSDATA\\section4variable\\RSCVN\\'
-srpath = 'I:\\TESSDATA\\section4variable\\SR\\'
-ceppath = 'I:\\TESSDATA\\section4variable\\CEP\\'
-unkownpath = 'I:\\TESSDATA\\section4variable\\UNKNOWN\\'
+path = 'J:\\TESSDATA\\section1\\'
+ROTpath = 'J:\\TESSDATA\\section5variable\\ROT\\'
+dsctpath = 'J:\\TESSDATA\\section5variable\\DSCT\\'
+eapath = 'J:\\TESSDATA\\section5variable\\EA\\'
+ewpath = 'J:\\TESSDATA\\section5variable\\EW\\'
+mirapath = 'J:\\TESSDATA\\section5variable\\MIRA\\'
+rrabpath = 'J:\\TESSDATA\\section5variable\\RRAB\\'
+rrcpath = 'J:\\TESSDATA\\section5variable\\RRC\\'
+srpath = 'J:\\TESSDATA\\section5variable\\SR\\'
+ceppath = 'J:\\TESSDATA\\section5variable\\CEP\\'
+unkownpath = 'J:\\TESSDATA\\section5variable\\UNKNOWN\\'
 count = 0
 for root, dirs, files in os.walk(path):
    for file in files:
@@ -176,10 +176,10 @@ for root, dirs, files in os.walk(path):
            
                comper, wrongP, maxpower = computeperiod(tbjd, fluxes)
                pdmp, delta  = computePDM(1/comper, tbjd, fluxes, 1)
-               if delta <0.5 and pdmp < 12:
+               if delta <0.7 and pdmp < 12:
                    pdmp2, delta2  = computePDM(1/(comper*2), tbjd, fluxes, 2)
            
-                   if (delta/delta2)<1.5:
+                   if (delta/delta2)<1.2:
                        p = comper
                        phases, resultmag = pholddata(comper, tbjd, fluxes)
                    else:
@@ -189,7 +189,7 @@ for root, dirs, files in os.walk(path):
                    index = classifyfftdata(phases, resultmag, p)
            
                    if index == 0:
-                       shutil.copy(strfile,bydrapath)
+                       shutil.copy(strfile,ROTpath)
     
                    if index == 1:
                        shutil.copy(strfile,dsctpath)
@@ -210,16 +210,13 @@ for root, dirs, files in os.walk(path):
                        shutil.copy(strfile,rrcpath)
                        
                    if index == 7 :
-                       shutil.copy(strfile,rscvnpath) 
-                       
-                   if index == 8 :
                        shutil.copy(strfile,srpath) 
                        
-                   if index == 9 :
-                       shutil.copy(strfile,ceppath)
-                   
+                   if index == 8 :
+                       shutil.copy(strfile,ceppath) 
+                       
                    print(str(index)+'is ok!')
-               elif delta < 0.5 and pdmp > 12:
+               elif delta < 0.7 and pdmp > 12:
                    shutil.copy(strfile,unkownpath)
                     
        except:

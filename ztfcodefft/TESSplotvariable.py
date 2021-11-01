@@ -117,8 +117,8 @@ def classifyfftdata(phases, resultmag, P):
     index = np.argmax(prenpdata[0])
     return index
 
-path = 'I:\\TESSDATA\\section1\\' 
-file = 'tess2018206045859-s0001-0000000308851582-0120-s_lc.fits'
+path = 'J:\\TESSDATA\\section1\\' 
+file = 'tess2018206045859-s0001-0000000140070819-0120-s_lc.fits'
 
 tbjd, fluxes = readfits(path+file)
 mag = -2.5*np.log10(fluxes)
@@ -128,7 +128,7 @@ mag = mag-np.mean(mag)
 
 comper, wrongP, maxpower = computeperiod(tbjd, fluxes)
 pdmp, delta  = computePDM(1/comper, tbjd, fluxes, 1)
-if delta <0.5 and pdmp < 12:
+if delta <0.7 and pdmp < 12:
     pdmp2, delta2  = computePDM(1/(comper*2), tbjd, fluxes, 2)
     print(delta/delta2)       
     if (delta/delta2)<1.5:

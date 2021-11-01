@@ -48,18 +48,46 @@ def pholddata(per, times, fluxes):
     resultmag = mags[sortIndi]
     return phases, resultmag
 
+def zerophse(phases, resultmag):
+    listmag = resultmag.tolist()
+    listmag.extend(listmag)
+    listphrase = phases.tolist()
+    listphrase.extend(listphrase+np.max(1))
+    
+    nplistmag = np.array(listmag)
+    sortmag = np.sort(nplistmag)
+    maxindex = np.median(sortmag[-1:])
+    indexmag = listmag.index(maxindex)
+    nplistphrase = np.array(listphrase)
+    nplistphrase = nplistphrase-nplistphrase[indexmag]
+    nplistmag = np.array(listmag)
+    
+    phasemag = np.vstack((nplistphrase, nplistmag)) #纵向合并矩阵
+    phasemag = phasemag.T
+    phasemag = phasemag[phasemag[:,0]>=0]
+    phasemag = phasemag[phasemag[:,0]<=1]
+    
+    return phasemag
 
 #path = 'E:\\shunbianyuan\\phometry\\pipelinecode\\fenlei\\testdata\\RRC\\'
-file = 'lcdd2_3_425_569.1_1013.9_16.947_43.146_b.dat'
+file = 'lcdd2_3_362_556.0_825.1_303.676_39.672_a.dat'
 nphjmag = np.loadtxt(file)
 npjd = nphjmag[:,0]
 npmag = nphjmag[:,1]
 
-P = 0.12*2
+P = 5.468
 
 phases, resultmag = pholddata(P, npjd, npmag)
+phasemag = zerophse(phases, resultmag)
+
 index = classifyfftdata(phases, resultmag, P)
 
+
+plt.figure(2)
+plt.plot(phasemag[:,0], phasemag[:,1],'.')
+ax = plt.gca()
+ax.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
+ax.invert_yaxis() #y轴反向
 
 plt.figure(1)
 plt.plot(phases, resultmag,'.')

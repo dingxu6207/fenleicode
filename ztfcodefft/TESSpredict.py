@@ -16,16 +16,7 @@ import shutil
 from tensorflow.keras.models import load_model
 from scipy.fftpack import fft,ifft
 
-model = load_model('modelalls.hdf5')
-def classfiydata(phasemag):
-    sx1 = np.linspace(0,1,100)
-    sy1 = np.interp(sx1, phasemag[:,0], phasemag[:,1])
-    nparraydata = np.reshape(sy1,(1,100))
-    prenpdata = model.predict(nparraydata)
-
-    index = np.argmax(prenpdata[0])
-    print(index)
-    return index
+model = load_model('modelrot.hdf5')
 
 def classifyfftdata(phases, resultmag, P):
     phases = np.copy(phases)
@@ -104,7 +95,6 @@ def computeperiodbs(JDtime, targetflux):
     return period, 0, 0
 
 def computebindata(lendata, fg):
-    
     if lendata>5000:
         bindata = int(lendata/100)
     elif lendata>3000:
@@ -124,15 +114,15 @@ def computebindata(lendata, fg):
 
 def computePDM(f0, time, fluxes, flag):
     period = 1/f0
-    lendata =  int((period/12)*len(time))
+    #lendata =  int((period/12)*len(time))
+    lendata =  int((period/24)*2*len(time))
     fluxes = fluxes[0:lendata]
     time = time[0:lendata]
     mag = -2.5*np.log10(fluxes)
     mag = mag-np.mean(mag)
     S = pyPDM.Scanner(minVal=f0-0.01, maxVal=f0+0.01, dVal=0.001, mode="frequency")
     P = pyPDM.PyPDM(time, mag)
-    #bindata = int(len(mag)/20)
-    #bindata = 100
+
     lenmag = len(mag)
     if flag == 1:
         bindata = computebindata(lenmag, 1)
@@ -148,7 +138,7 @@ def pholddata(per, times, fluxes):
     mags = -2.5*np.log10(fluxes)
     mags = mags-np.mean(mags)
     
-    lendata =  int((per/12)*len(times))
+    lendata =  int((per/24)*2*len(times))
      
     time = times[0:lendata]
     mag = mags[0:lendata]
@@ -158,22 +148,23 @@ def pholddata(per, times, fluxes):
     resultmag = mag[sortIndi]
     return phases, resultmag
 
-path = 'I:\\TESSDATA\\section1\\' 
-file = 'tess2018206045859-s0001-0000000278708134-0120-s_lc.fits'
+path = 'J:\\TESSDATA\\section1\\' 
+file = 'tess2018206045859-s0001-0000000052192438-0120-s_lc.fits'
 
 tbjd, fluxes = readfits(path+file)
 comper, wrongP, maxpower = computeperiod(tbjd, fluxes)
 #comper, wrongP, maxpower = computeperiodbs(tbjd, fluxes)
 pdmp, delta  = computePDM(1/comper, tbjd, fluxes, 1)
 
-if delta <0.5 and pdmp < 15:
+if delta <0.9:
     pdmp2, delta2  = computePDM(1/(comper*2), tbjd, fluxes, 2)
     print(delta/delta2)
-    if (delta/delta2)<1.5:
+    if (delta/delta2)<1.2:
         p = pdmp
         phases, resultmag = pholddata(comper, tbjd, fluxes)
     else:
         p = pdmp*2 
+        print('it is ok')
         phases, resultmag = pholddata(comper*2, tbjd, fluxes)
 
 index = classifyfftdata(phases, resultmag, p)
@@ -185,3 +176,6 @@ plt.ylabel('mag',fontsize=14)
 ax1 = plt.gca()
 ax1.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
 ax1.invert_yaxis() #y轴反向
+
+plt.figure(1)
+plt.plot(tbjd, fluxes, '.')
