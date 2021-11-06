@@ -13,6 +13,7 @@ from PyAstronomy.pyTiming import pyPDM
 from astropy.timeseries import LombScargle
 from tensorflow.keras.models import load_model
 from scipy.fftpack import fft,ifft
+from PyEMD import EMD, Visualisation
 
 model = load_model('modelalls.hdf5')
 def readfits(fits_file):
@@ -118,14 +119,56 @@ def classifyfftdata(phases, resultmag, P):
     return index
 
 path = 'J:\\TESSDATA\\section1\\' 
-file = 'tess2018206045859-s0001-0000000140070819-0120-s_lc.fits'
-
+file = ''
+#file = 'tess2018206045859-s0001-0000000419744996-0120-s_lc.fits'
+file = 'tess2018206045859-s0001-0000000441406061-0120-s_lc.fits'
 tbjd, fluxes = readfits(path+file)
-mag = -2.5*np.log10(fluxes)
-mag = mag-np.mean(mag)
+tbjd = tbjd[0:2000]
+fluxes = fluxes[0:2000]
+#mag = -2.5*np.log10(fluxes)
+#mag = mag-np.mean(mag)
+
+emd = EMD()
+emd.FIXE_H = 0
+emd.emd(fluxes)
+imfs,res = emd.get_imfs_and_residue()
+vis = Visualisation()
+vis.plot_imfs(imfs=imfs, residue=res, t=tbjd, include_residue=True)
+#vis.plot_instant_freq(tbjd, imfs=imfs)
+
+plt.figure(3)
+plt.plot(tbjd, fluxes, '.')
+plt.xlabel('JD',fontsize=14)
+plt.ylabel('FLUX',fontsize=14) 
+
+plt.figure(4)
+plt.plot(tbjd, imfs[4]+imfs[5]+imfs[6])
+plt.xlabel('JD',fontsize=14)
+plt.ylabel('FLUX',fontsize=14) 
+
+'''
+diff1 = np.diff(fluxes, 1)
+
+plt.figure(4)
+plt.hist(diff1,100)
+
+fft_y = fft(diff1) 
+npfft_y = np.abs(fft_y)
 
 
+plt.figure(1)
+plt.plot(tbjd[:-1],diff1)
+plt.figure(2)
+plt.plot(npfft_y[0:1000])
 
+
+plt.figure(3)
+plt.plot(tbjd, fluxes)
+plt.xlabel('JD',fontsize=14)
+plt.ylabel('FLUX',fontsize=14) 
+'''
+
+'''
 comper, wrongP, maxpower = computeperiod(tbjd, fluxes)
 pdmp, delta  = computePDM(1/comper, tbjd, fluxes, 1)
 if delta <0.7 and pdmp < 12:
@@ -159,5 +202,5 @@ ax1 = plt.gca()
 ax1.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
 ax1.invert_yaxis() #y轴反向
 
-
+'''
 

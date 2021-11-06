@@ -87,10 +87,32 @@ def zerophse(phases, resultmag):
     
     return phasemag
 
+def zerophrase(phases, resultmag):
+    listmag = resultmag.tolist()
+    listmag.extend(listmag)
+    listphrase = phases.tolist()
+    listphrase.extend(listphrase+np.max(1))
+    
+    nplistmag = np.array(listmag)
+    sortmag = np.sort(nplistmag)
+    maxindex = np.median(sortmag[-1:])
+    indexmag = listmag.index(maxindex)
+    nplistphrase = np.array(listphrase)
+    nplistphrase = nplistphrase-nplistphrase[indexmag]
+    nplistmag = np.array(listmag)
+    
+    phasemag = np.vstack((nplistphrase, nplistmag)) #纵向合并矩阵
+    phasemag = phasemag.T
+    phasemag = phasemag[phasemag[:,0]>=0]
+    phasemag = phasemag[phasemag[:,0]<=1]
+    
+    return phasemag
+
+
 def computeperiod(JDtime, targetflux):
    
     ls = LombScargle(JDtime, targetflux, normalization='model')
-    frequency, power = ls.autopower(minimum_frequency=0.01,maximum_frequency=40)
+    frequency, power = ls.autopower(minimum_frequency=0.01,maximum_frequency=100)
     index = np.argmax(power)
     maxpower = np.max(power)
     period = 1/frequency[index]
@@ -98,39 +120,16 @@ def computeperiod(JDtime, targetflux):
     return period, wrongP, maxpower
 
 
-def computebindata(lendata, fg):
-    
-    if lendata>5000:
-        bindata = int(lendata/100)
-    elif lendata>3000:
-        bindata = int(lendata/10)
-    elif lendata>400:
-        bindata = int(lendata/6)
-    elif lendata>200:
-        bindata = int(lendata/3)
-    else:
-        bindata = int(lendata/2)
-    if fg == 1:
-        return bindata
-    if fg == 2:
-        return (bindata*2)
-    
-
-def computePDM(f0, time, fluxes, flag):
+def computePDM(f0, time, fluxes):
     period = 1/f0
     lendata =  int((period/26)*2*len(time))
     fluxes = fluxes[0:lendata]
     time = time[0:lendata]
     mag = -2.5*np.log10(fluxes)
     mag = mag-np.mean(mag)
-    S = pyPDM.Scanner(minVal=f0-0.01, maxVal=f0+0.01, dVal=0.001, mode="frequency")
+    S = pyPDM.Scanner(minVal=f0/3, maxVal=f0*3, dVal=0.005, mode="frequency")
     P = pyPDM.PyPDM(time, mag)
-    lenmag = len(mag)
-    if flag == 1:
-        bindata = computebindata(lenmag, 1)
-    elif flag == 2:
-        bindata = computebindata(lenmag/2, 2)
-        
+    bindata = int(lendata/6)
     f2, t2 = P.pdmEquiBin(bindata, S)
     delta = np.min(t2)
     pdmp = 1/f2[np.argmin(t2)]
@@ -140,7 +139,10 @@ def pholddata(per, times, fluxes):
     mags = -2.5*np.log10(fluxes)
     mags = mags-np.mean(mags)
     
-    lendata =  int((per/26)*2*len(times))
+    if per>0.125:
+        lendata =  int((per/26)*len(times))
+    else:
+        lendata =  int((per/26)*10*len(times))
      
     time = times[0:lendata]
     mag = mags[0:lendata]
@@ -173,18 +175,10 @@ for root, dirs, files in os.walk(path):
                print('it is time'+str(count))
            
                comper, wrongP, maxpower = computeperiod(tbjd, fluxes)
-               pdmp, delta  = computePDM(1/comper, tbjd, fluxes, 1)
+               pdmp, delta  = computePDM(1/comper, tbjd, fluxes)
                if delta <0.7 and pdmp < 13:
-                   pdmp2, delta2  = computePDM(1/(comper*2), tbjd, fluxes, 2)
-           
-                   if (delta/delta2)<1.2:
-                       p = comper
-                       phases, resultmag = pholddata(comper, tbjd, fluxes)
-                   else:
-                       p = comper*2 
-                       phases, resultmag = pholddata(comper*2, tbjd, fluxes)
-           
-                   index = classifyfftdata(phases, resultmag, p)
+                   phases, resultmag = pholddata(pdmp, tbjd, fluxes)
+                   index = classifyfftdata(phases, resultmag, pdmp)
            
                    if index == 0:
                        shutil.copy(strfile,ROTpath)
