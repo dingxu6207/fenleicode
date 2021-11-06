@@ -134,7 +134,7 @@ def computebindata2(lendata):
 
 def computePDM(f0, time, fluxes, flag):
     period = 1/f0
-    lendata =  int((period/12)*len(time))
+    lendata =  int((period/13)*len(time))
     fluxes = fluxes[0:lendata]
     time = time[0:lendata]
     mag = -2.5*np.log10(fluxes)
@@ -158,7 +158,7 @@ def pholddata(per, times, fluxes):
     mags = -2.5*np.log10(fluxes)
     mags = mags-np.mean(mags)
     
-    lendata =  int((per/12)*len(times))
+    lendata =  int((per/13)*len(times))
      
     time = times[0:lendata]
     mag = mags[0:lendata]
@@ -169,7 +169,7 @@ def pholddata(per, times, fluxes):
     return phases, resultmag
 
 path = 'J:\\TESSDATA\\section1\\' 
-file = 'tess2018206045859-s0001-0000000055269690-0120-s_lc.fits'
+file = 'tess2018206045859-s0001-0000000029281992-0120-s_lc.fits'
 
 tbjd, fluxes = readfits(path+file)
 comper0, wrongP, maxpower = computeperiod(tbjd, fluxes)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Aug  4 16:37:20 2021
+Created on Sat Nov  6 21:12:54 2021
 
 @author: dingxu
 """
@@ -16,8 +16,7 @@ import shutil
 from tensorflow.keras.models import load_model
 from scipy.fftpack import fft,ifft
 
-#model = load_model('modelalls.hdf5')
-model = load_model('modelrot.hdf5')
+#model = load_model('modelrot.hdf5')
 def classfiydata(phasemag):
     sx1 = np.linspace(0,1,100)
     sy1 = np.interp(sx1, phasemag[:,0], phasemag[:,1])
@@ -97,8 +96,15 @@ def computeperiod(JDtime, targetflux):
     wrongP = ls.false_alarm_probability(power.max())
     return period, wrongP, maxpower
 
+def computeperiodbs(JDtime, targetflux):
+    from astropy.timeseries import BoxLeastSquares
+    model = BoxLeastSquares(JDtime, targetflux)
+    results = model.autopower(0.16)
+    period = results.period[np.argmax(results.power)]
+    return period, 0, 0
 
-def computebindata(lendata, fg):
+
+def computebindata1(lendata):
     
     if lendata>5000:
         bindata = int(lendata/100)
@@ -110,26 +116,38 @@ def computebindata(lendata, fg):
         bindata = int(lendata/3)
     else:
         bindata = int(lendata/2)
-    if fg == 1:
-        return bindata
-    if fg == 2:
-        return (bindata*2)
+    return bindata
+
+def computebindata2(lendata):
     
+    if lendata>5000:
+        bindata = int(lendata/100)
+    elif lendata>3000:
+        bindata = int(lendata/10)
+    elif lendata>400:
+        bindata = int(lendata/6)
+    elif lendata>200:
+        bindata = int(lendata/3)
+    else:
+        bindata = int(lendata/2)
+    return bindata*2
 
 def computePDM(f0, time, fluxes, flag):
     period = 1/f0
-    lendata =  int((period/26)*2*len(time))
+    lendata =  int((period/13)*len(time))
     fluxes = fluxes[0:lendata]
     time = time[0:lendata]
     mag = -2.5*np.log10(fluxes)
     mag = mag-np.mean(mag)
     S = pyPDM.Scanner(minVal=f0-0.01, maxVal=f0+0.01, dVal=0.001, mode="frequency")
     P = pyPDM.PyPDM(time, mag)
+    #bindata = int(len(mag)/20)
+    #bindata = 100
     lenmag = len(mag)
     if flag == 1:
-        bindata = computebindata(lenmag, 1)
+        bindata = computebindata1(lenmag)
     elif flag == 2:
-        bindata = computebindata(lenmag/2, 2)
+        bindata = computebindata2(lenmag/2)
         
     f2, t2 = P.pdmEquiBin(bindata, S)
     delta = np.min(t2)
@@ -140,7 +158,7 @@ def pholddata(per, times, fluxes):
     mags = -2.5*np.log10(fluxes)
     mags = mags-np.mean(mags)
     
-    lendata =  int((per/26)*2*len(times))
+    lendata =  int((per/13)*len(times))
      
     time = times[0:lendata]
     mag = mags[0:lendata]
@@ -150,81 +168,14 @@ def pholddata(per, times, fluxes):
     resultmag = mag[sortIndi]
     return phases, resultmag
 
-path = 'J:\\TESSDATA\\section1\\'
-ROTpath = 'J:\\TESSDATA\\section7variable\\ROT\\'
-dsctpath = 'J:\\TESSDATA\\section7variable\\DSCT\\'
-eapath = 'J:\\TESSDATA\\section7variable\\EA\\'
-ewpath = 'J:\\TESSDATA\\section7variable\\EW\\'
-mirapath = 'J:\\TESSDATA\\section7variable\\MIRA\\'
-rrabpath = 'J:\\TESSDATA\\section7variable\\RRAB\\'
-rrcpath = 'J:\\TESSDATA\\section7variable\\RRC\\'
-srpath = 'J:\\TESSDATA\\section7variable\\SR\\'
-ceppath = 'J:\\TESSDATA\\section7variable\\CEP\\'
-NONpath = 'J:\\TESSDATA\\section7variable\\NON\\'
-unkownpath = 'J:\\TESSDATA\\section7variable\\UNKNOWN\\'
-
-count = 0
+path = 'J:\\TESSDATA\\section7variable\\DSCT\\'
 for root, dirs, files in os.walk(path):
    for file in files:
        strfile = os.path.join(root, file)
        if (strfile[-5:] == '.fits'):
            print(strfile)
-       try:
-               tbjd, fluxes = readfits(strfile)
-               count = count+1
-               print('it is time'+str(count))
            
-               comper, wrongP, maxpower = computeperiod(tbjd, fluxes)
-               pdmp, delta  = computePDM(1/comper, tbjd, fluxes, 1)
-               if delta <0.7 and pdmp < 13:
-                   pdmp2, delta2  = computePDM(1/(comper*2), tbjd, fluxes, 2)
-           
-                   if (delta/delta2)<1.2:
-                       p = comper
-                       phases, resultmag = pholddata(comper, tbjd, fluxes)
-                   else:
-                       p = comper*2 
-                       phases, resultmag = pholddata(comper*2, tbjd, fluxes)
-           
-                   index = classifyfftdata(phases, resultmag, p)
-           
-                   if index == 0:
-                       shutil.copy(strfile,ROTpath)
-    
-                   if index == 1:
-                       shutil.copy(strfile,dsctpath)
-
-                   if index == 2:
-                       shutil.copy(strfile,eapath)
-
-                   if index == 3:
-                       shutil.copy(strfile,ewpath)
-
-                   if index == 4:
-                       shutil.copy(strfile,mirapath)
-    
-                   if index == 5 :
-                       shutil.copy(strfile,rrabpath)
-                       
-                   if index == 6 :
-                       shutil.copy(strfile,rrcpath)
-                       
-                   if index == 7 :
-                       shutil.copy(strfile,srpath) 
-                       
-                   if index == 8 :
-                       shutil.copy(strfile,ceppath) 
-                       
-                   print(str(index)+'is ok!')
-               elif delta < 0.7 and pdmp > 13:
-                   shutil.copy(strfile,unkownpath)
-                   
-               elif delta > 0.7:
-                   shutil.copy(strfile,NONpath)
-                    
-       except:
-              continue
-
-               
-               
-               
+           tbjd, fluxes = readfits(strfile)
+           plt.plot(tbjd[0:1000], fluxes[0:1000],'.')
+           plt.pause(1)
+           plt.clf()
