@@ -5,17 +5,53 @@ Created on Tue Aug 10 15:56:50 2021
 @author: dingxu
 """
 
+import os
 from astropy.io import fits
 import matplotlib.pyplot as plt
 import numpy as np
 from PyAstronomy.pyasl import foldAt
 from PyAstronomy.pyTiming import pyPDM
 from astropy.timeseries import LombScargle
+import shutil
 from tensorflow.keras.models import load_model
 from scipy.fftpack import fft,ifft
-from PyEMD import EMD, Visualisation
 
-model = load_model('modelalls.hdf5')
+model = load_model('model50.hdf5')
+#model = load_model('modelrot.hdf5')
+#model = load_model('cnnmodel.hdf5')
+def classfiydata(phasemag):
+    sx1 = np.linspace(0,1,100)
+    sy1 = np.interp(sx1, phasemag[:,0], phasemag[:,1])
+    nparraydata = np.reshape(sy1,(1,100))
+    prenpdata = model.predict(nparraydata)
+
+    index = np.argmax(prenpdata[0])
+    print(index)
+    return index
+
+def classifyfftdata(phases, resultmag, P):
+    phases = np.copy(phases)
+    resultmag = np.copy(resultmag)
+    N = 100
+    x = np.linspace(0,1,N)
+    y = np.interp(x, phases, resultmag) 
+
+    fft_y = fft(y) 
+    half_x = x[range(int(N/2))]  #取一半区间
+    abs_y = np.abs(fft_y) 
+    normalization_y = abs_y/N            #归一化处理（双边频谱）                              
+    normalization_half_y = normalization_y[range(int(N/2))] 
+    normalization_half_y[0] = P/10
+    sy1 = np.copy(normalization_half_y)
+    #model = load_model('modelall.hdf5')#eclipseothers,ztfmodule
+    #nparraydata = np.reshape(sy1,(1,50,1)) #cnnmodel
+    #sy1 = sy1[0:45]
+    nparraydata = np.reshape(sy1,(1,50)) #mlpmodel
+    prenpdata = model.predict(nparraydata)
+
+    index = np.argmax(prenpdata[0])
+    return index
+
 def readfits(fits_file):
     with fits.open(fits_file, mode="readonly") as hdulist:
         tess_bjds = hdulist[1].data['TIME']
@@ -32,7 +68,28 @@ def readfits(fits_file):
         flux =  flux.flatten()
         
         return time, flux
+
+def zerophse(phases, resultmag):
+    listmag = resultmag.tolist()
+    listmag.extend(listmag)
+    listphrase = phases.tolist()
+    listphrase.extend(listphrase+np.max(1))
     
+    nplistmag = np.array(listmag)
+    sortmag = np.sort(nplistmag)
+    maxindex = np.median(sortmag[-1:])
+    indexmag = listmag.index(maxindex)
+    nplistphrase = np.array(listphrase)
+    nplistphrase = nplistphrase-nplistphrase[indexmag]
+    nplistmag = np.array(listmag)
+    
+    phasemag = np.vstack((nplistphrase, nplistmag)) #纵向合并矩阵
+    phasemag = phasemag.T
+    phasemag = phasemag[phasemag[:,0]>=0]
+    phasemag = phasemag[phasemag[:,0]<=1]
+    
+    return phasemag
+
 def computeperiod(JDtime, targetflux):
    
     ls = LombScargle(JDtime, targetflux, normalization='model')
@@ -41,21 +98,8 @@ def computeperiod(JDtime, targetflux):
     maxpower = np.max(power)
     period = 1/frequency[index]
     wrongP = ls.false_alarm_probability(power.max())
-    return period, wrongP, maxpower    
-  
-def pholddata(per, times, fluxes):
-    mags = -2.5*np.log10(fluxes)
-    mags = mags-np.mean(mags)
-    
-    lendata =  int((per/12)*len(times))
-     
-    time = times[0:lendata]
-    mag = mags[0:lendata]
-    phases = foldAt(time, per)
-    sortIndi = np.argsort(phases)
-    phases = phases[sortIndi]
-    resultmag = mag[sortIndi]
-    return phases, resultmag
+    return period, wrongP, maxpower
+
 
 def computebindata(lendata, fg):
     
@@ -77,15 +121,13 @@ def computebindata(lendata, fg):
 
 def computePDM(f0, time, fluxes, flag):
     period = 1/f0
-    lendata =  int((period/12)*len(time))
+    lendata =  int((period/26)*2*len(time))
     fluxes = fluxes[0:lendata]
     time = time[0:lendata]
     mag = -2.5*np.log10(fluxes)
     mag = mag-np.mean(mag)
     S = pyPDM.Scanner(minVal=f0-0.01, maxVal=f0+0.01, dVal=0.001, mode="frequency")
     P = pyPDM.PyPDM(time, mag)
-    #bindata = int(len(mag)/20)
-    #bindata = 100
     lenmag = len(mag)
     if flag == 1:
         bindata = computebindata(lenmag, 1)
@@ -97,110 +139,59 @@ def computePDM(f0, time, fluxes, flag):
     pdmp = 1/f2[np.argmin(t2)]
     return pdmp, delta
 
-def classifyfftdata(phases, resultmag, P):
-    phases = np.copy(phases)
-    resultmag = np.copy(resultmag)
-    N = 100
-    x = np.linspace(0,1,N)
-    y = np.interp(x, phases, resultmag) 
+def pholddata(per, times, fluxes):
+    mags = -2.5*np.log10(fluxes)
+    mags = mags-np.mean(mags)
+    
+    lendata =  int((per/26)*2*len(times))
+     
+    time = times[0:lendata]
+    mag = mags[0:lendata]
+    phases = foldAt(time, per)
+    sortIndi = np.argsort(phases)
+    phases = phases[sortIndi]
+    resultmag = mag[sortIndi]
+    return phases, resultmag
 
-    fft_y = fft(y) 
-    half_x = x[range(int(N/2))]  #取一半区间
-    abs_y = np.abs(fft_y) 
-    normalization_y = abs_y/N            #归一化处理（双边频谱）                              
-    normalization_half_y = normalization_y[range(int(N/2))] 
-    normalization_half_y[0] = P/10
-    sy1 = np.copy(normalization_half_y)
-    #model = load_model('modelall.hdf5')#eclipseothers,ztfmodule
-    nparraydata = np.reshape(sy1,(1,50))
-    prenpdata = model.predict(nparraydata)
 
-    index = np.argmax(prenpdata[0])
-    return index
 
 path = 'J:\\TESSDATA\\section1\\' 
-file = ''
-#file = 'tess2018206045859-s0001-0000000419744996-0120-s_lc.fits'
-file = 'tess2018206045859-s0001-0000000441406061-0120-s_lc.fits'
-tbjd, fluxes = readfits(path+file)
-tbjd = tbjd[0:2000]
-fluxes = fluxes[0:2000]
-#mag = -2.5*np.log10(fluxes)
-#mag = mag-np.mean(mag)
 
-emd = EMD()
-emd.FIXE_H = 0
-emd.emd(fluxes)
-imfs,res = emd.get_imfs_and_residue()
-vis = Visualisation()
-vis.plot_imfs(imfs=imfs, residue=res, t=tbjd, include_residue=True)
-#vis.plot_instant_freq(tbjd, imfs=imfs)
+#file = 'tess2018206045859-s0001-0000000419744996-0120-s_lc.fits'
+file = 'tess2018206045859-s0001-0000000167524563-0120-s_lc.fits'
+tbjd, fluxes = readfits(path+file)
 
 plt.figure(3)
 plt.plot(tbjd, fluxes, '.')
 plt.xlabel('JD',fontsize=14)
 plt.ylabel('FLUX',fontsize=14) 
 
-plt.figure(4)
-plt.plot(tbjd, imfs[4]+imfs[5]+imfs[6])
-plt.xlabel('JD',fontsize=14)
-plt.ylabel('FLUX',fontsize=14) 
-
-'''
-diff1 = np.diff(fluxes, 1)
-
-plt.figure(4)
-plt.hist(diff1,100)
-
-fft_y = fft(diff1) 
-npfft_y = np.abs(fft_y)
 
 
-plt.figure(1)
-plt.plot(tbjd[:-1],diff1)
-plt.figure(2)
-plt.plot(npfft_y[0:1000])
 
-
-plt.figure(3)
-plt.plot(tbjd, fluxes)
-plt.xlabel('JD',fontsize=14)
-plt.ylabel('FLUX',fontsize=14) 
-'''
-
-'''
 comper, wrongP, maxpower = computeperiod(tbjd, fluxes)
 pdmp, delta  = computePDM(1/comper, tbjd, fluxes, 1)
-if delta <0.7 and pdmp < 12:
+if delta <0.7 and pdmp < 13:
     pdmp2, delta2  = computePDM(1/(comper*2), tbjd, fluxes, 2)
     print(delta/delta2)       
-    if (delta/delta2)<1.5:
+    if (delta/delta2)<1.2:
         p = comper
         phases, resultmag = pholddata(comper, tbjd, fluxes)
     else:
-        p = comper*2 
+        p = comper*2
         phases, resultmag = pholddata(comper*2, tbjd, fluxes)
 
 
 phases, resultmag = pholddata(p, tbjd, fluxes)
 index = classifyfftdata(phases, resultmag, p)
-#from astropy.timeseries import BoxLeastSquares
-#model = BoxLeastSquares(tbjd, mag)
-#results = model.autopower(0.2)
-#print(results.period[np.argmax(results.power)])  
 
 plt.figure(0)
-plt.plot(tbjd, fluxes, '.')
-plt.xlabel('JD',fontsize=14)
-plt.ylabel('FLUX',fontsize=14) 
-
-plt.figure(1)
 plt.plot(phases, resultmag, '.')
 plt.xlabel('phase',fontsize=14)
-plt.ylabel('mag',fontsize=14)
-ax1 = plt.gca()
-ax1.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
-ax1.invert_yaxis() #y轴反向
+plt.ylabel('mag',fontsize=14) 
+ax = plt.gca()
+ax.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
+ax.invert_yaxis() #y轴反向
 
-'''
+
 

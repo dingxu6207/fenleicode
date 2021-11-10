@@ -16,8 +16,9 @@ import shutil
 from tensorflow.keras.models import load_model
 from scipy.fftpack import fft,ifft
 
-#model = load_model('modelalls.hdf5')
-model = load_model('modelrot.hdf5')
+model = load_model('model50.hdf5')
+#model = load_model('modelrot.hdf5')
+#model = load_model('cnnmodel.hdf5')
 def classfiydata(phasemag):
     sx1 = np.linspace(0,1,100)
     sy1 = np.interp(sx1, phasemag[:,0], phasemag[:,1])
@@ -43,7 +44,9 @@ def classifyfftdata(phases, resultmag, P):
     normalization_half_y[0] = P/10
     sy1 = np.copy(normalization_half_y)
     #model = load_model('modelall.hdf5')#eclipseothers,ztfmodule
-    nparraydata = np.reshape(sy1,(1,50))
+    #nparraydata = np.reshape(sy1,(1,50,1)) #cnnmodel
+    #sy1 = sy1[0:45]
+    nparraydata = np.reshape(sy1,(1,50)) #mlpmodel
     prenpdata = model.predict(nparraydata)
 
     index = np.argmax(prenpdata[0])
@@ -151,17 +154,17 @@ def pholddata(per, times, fluxes):
     return phases, resultmag
 
 path = 'J:\\TESSDATA\\section1\\'
-ROTpath = 'J:\\TESSDATA\\section7variable\\ROT\\'
-dsctpath = 'J:\\TESSDATA\\section7variable\\DSCT\\'
-eapath = 'J:\\TESSDATA\\section7variable\\EA\\'
-ewpath = 'J:\\TESSDATA\\section7variable\\EW\\'
-mirapath = 'J:\\TESSDATA\\section7variable\\MIRA\\'
-rrabpath = 'J:\\TESSDATA\\section7variable\\RRAB\\'
-rrcpath = 'J:\\TESSDATA\\section7variable\\RRC\\'
-srpath = 'J:\\TESSDATA\\section7variable\\SR\\'
-ceppath = 'J:\\TESSDATA\\section7variable\\CEP\\'
-NONpath = 'J:\\TESSDATA\\section7variable\\NON\\'
-unkownpath = 'J:\\TESSDATA\\section7variable\\UNKNOWN\\'
+ROTpath = 'J:\\TESSDATA\\section10variable\\ROT\\'
+dsctpath = 'J:\\TESSDATA\\section10variable\\DSCT\\'
+eapath = 'J:\\TESSDATA\\section10variable\\EA\\'
+ewpath = 'J:\\TESSDATA\\section10variable\\EW\\'
+mirapath = 'J:\\TESSDATA\\section10variable\\MIRA\\'
+rrabpath = 'J:\\TESSDATA\\section10variable\\RRAB\\'
+rrcpath = 'J:\\TESSDATA\\section10variable\\RRC\\'
+srpath = 'J:\\TESSDATA\\section10variable\\SR\\'
+ceppath = 'J:\\TESSDATA\\section10variable\\CEP\\'
+NONpath = 'J:\\TESSDATA\\section10variable\\NON\\'
+unkownpath = 'J:\\TESSDATA\\section10variable\\UNKNOWN\\'
 
 count = 0
 for root, dirs, files in os.walk(path):

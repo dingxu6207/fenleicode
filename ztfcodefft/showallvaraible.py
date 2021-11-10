@@ -168,7 +168,7 @@ def pholddata(per, times, fluxes):
     resultmag = mag[sortIndi]
     return phases, resultmag
 
-path = 'J:\\TESSDATA\\section7variable\\DSCT\\'
+path = 'J:\\TESSDATA\\section10variable\\EW\\'
 for root, dirs, files in os.walk(path):
    for file in files:
        strfile = os.path.join(root, file)
@@ -176,6 +176,6 @@ for root, dirs, files in os.walk(path):
            print(strfile)
            
            tbjd, fluxes = readfits(strfile)
-           plt.plot(tbjd[0:1000], fluxes[0:1000],'.')
-           plt.pause(1)
+           plt.plot(tbjd, fluxes,'.')
+           plt.pause(2)
            plt.clf()

@@ -14,8 +14,8 @@ from scipy import interpolate
 from tensorflow.keras.models import load_model
 from scipy.fftpack import fft,ifft
 
-path = 'E:\\shunbianyuan\\phometry\\pipelinecode\\fenlei\\testdata\\RRC\\'
-file = '604837_0.413001.csv'
+path = 'E:\\shunbianyuan\\phometry\\pipelinecode\\fenlei\\testdata\\EA\\'
+file = '106979_1.0577141.csv'
 data = pd.read_csv(path+file, sep = ',' )
 
 hjdmag = data[['hjd', 'mag']]
@@ -26,7 +26,7 @@ npmag = nphjmag[:,1]
 
 
 
-P = 0.413001
+P = 1.0577141
 phases = foldAt(npjd, P)
 sortIndi = np.argsort(phases)
 phases = phases[sortIndi]
@@ -58,8 +58,9 @@ ax.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
 ax.invert_yaxis() #y轴反向
 
 sy1 = np.copy(normalization_half_y)
-model = load_model('modelrot.hdf5')#eclipseothers,ztfmodule
-#model = load_model('modelalls.hdf5')#eclipseothers,ztfmodule
+#model = load_model('modelrot.hdf5')#eclipseothers,ztfmodule
+#sy1 = sy1[0:45]
+model = load_model('model50.hdf5')#eclipseothers,ztfmodule
 nparraydata = np.reshape(sy1,(1,50))
 prenpdata = model.predict(nparraydata)
 
