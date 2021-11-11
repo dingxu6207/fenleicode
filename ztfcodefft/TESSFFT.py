@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Aug  4 16:37:20 2021
+Created on Thu Nov 11 13:52:50 2021
 
 @author: dingxu
 """
@@ -15,17 +15,10 @@ from astropy.timeseries import LombScargle
 import shutil
 from tensorflow.keras.models import load_model
 from scipy.fftpack import fft,ifft
-import pandas as pd  
-import winsound
 
 model = load_model('model10.hdf5')
 #model = load_model('modelrot.hdf5')
 #model = load_model('cnnmodel.hdf5')
-def beep():
-    duration = 5000  # 持续时间以毫秒为单位，这里是5秒
-    freq = 440  # Hz
-    winsound.Beep(freq, duration)
-    
 def classfiydata(phasemag):
     sx1 = np.linspace(0,1,100)
     sy1 = np.interp(sx1, phasemag[:,0], phasemag[:,1])
@@ -57,7 +50,7 @@ def classifyfftdata(phases, resultmag, P):
     prenpdata = model.predict(nparraydata)
 
     index = np.argmax(prenpdata[0])
-    return index, np.max(prenpdata[0])
+    return index
 
 def readfits(fits_file):
     with fits.open(fits_file, mode="readonly") as hdulist:
@@ -73,10 +66,8 @@ def readfits(fits_file):
         time = time.flatten()
         flux = pdcsap_fluxes[indexflux]
         flux =  flux.flatten()
-        objectname = hdulist[0].header['OBJECT']
-        RA = hdulist[0].header['RA_OBJ']
-        DEC = hdulist[0].header['DEC_OBJ']
-        return time, flux, objectname, RA, DEC
+        
+        return time, flux
 
 def zerophse(phases, resultmag):
     listmag = resultmag.tolist()
@@ -162,94 +153,35 @@ def pholddata(per, times, fluxes):
     resultmag = mag[sortIndi]
     return phases, resultmag
 
-path = 'J:\\TESSDATA\\section1\\'
-ROTpath = 'J:\\TESSDATA\\section12variable\\ROT\\'
-dsctpath = 'J:\\TESSDATA\\section12variable\\DSCT\\'
-eapath = 'J:\\TESSDATA\\section12variable\\EA\\'
-ewpath = 'J:\\TESSDATA\\section12variable\\EW\\'
-mirapath = 'J:\\TESSDATA\\section12variable\\MIRA\\'
-rrabpath = 'J:\\TESSDATA\\section12variable\\RRAB\\'
-rrcpath = 'J:\\TESSDATA\\section12variable\\RRC\\'
-srpath = 'J:\\TESSDATA\\section12variable\\SR\\'
-ceppath = 'J:\\TESSDATA\\section12variable\\CEP\\'
-NONpath = 'J:\\TESSDATA\\section12variable\\NON\\'
-unkownpath = 'J:\\TESSDATA\\section12variable\\UNKNOWN\\'
+def fftdata(phases, resultmag):
+    N = 100
+    sx = np.linspace(0,1,N)
+    sy = np.interp(sx, phases, resultmag)
+    sy = sy-np.mean(sy)
+    fft_y = fft(sy) 
+    abs_y = np.abs(fft_y) 
 
-count = 0
-tempfile = []
-alltemp = []
-for root, dirs, files in os.walk(path):
-   for file in files:
-       strfile = os.path.join(root, file)
-       if (strfile[-5:] == '.fits'):
-           print(strfile)
-       try:
-               tbjd, fluxes, objectname, RA, DEC = readfits(strfile)
-               count = count+1
-               print('*********it is time'+str(count)+'********************')
-               comper, wrongP, maxpower = computeperiod(tbjd, fluxes)
-               pdmp, delta  = computePDM(1/comper, tbjd, fluxes, 1)
-               if delta <0.7 and pdmp < 13:
-                   pdmp2, delta2  = computePDM(1/(comper*2), tbjd, fluxes, 2)
-           
-                   if (delta/delta2)<1.2:
-                       p = comper
-                       phases, resultmag = pholddata(comper, tbjd, fluxes)
-                   else:
-                       p = comper*2 
-                       phases, resultmag = pholddata(comper*2, tbjd, fluxes)
-           
-                   index,prob = classifyfftdata(phases, resultmag, p)
-                   tempfile = []
-                   tempfile.append(file)
-                   tempfile.append(p)
-                   tempfile.append(prob)
-                   tempfile.append(index)
-                   tempfile.append(objectname)#objectname, RA, DEC
-                   tempfile.append(RA)
-                   tempfile.append(DEC)
-                   alltemp.append(tempfile)
-                   print(tempfile)
-                   if index == 0:
-                       shutil.copy(strfile,ROTpath)
+    yinv = ifft(abs_y)
+    return sx, yinv.real
     
-                   if index == 1:
-                       shutil.copy(strfile,dsctpath)
 
-                   if index == 2:
-                       shutil.copy(strfile,eapath)
+path = 'J:\\TESSDATA\\section1\\' 
+file = 'tess2018206045859-s0001-0000000415687649-0120-s_lc.fits'
+tbjd, fluxes = readfits(path+file)
+comper, wrongP, maxpower = computeperiod(tbjd, fluxes)
+phases, resultmag = pholddata(comper*2, tbjd, fluxes)
+sxdata, ifftdata = fftdata(phases, resultmag)
 
-                   if index == 3:
-                       shutil.copy(strfile,ewpath)
+plt.figure(1)
+plt.plot(tbjd, fluxes, '.')
+plt.xlabel('JD',fontsize=14)
+plt.ylabel('FLUX',fontsize=14)
 
-                   if index == 4:
-                       shutil.copy(strfile,mirapath)
-    
-                   if index == 5 :
-                       shutil.copy(strfile,rrabpath)
-                       
-                   if index == 6 :
-                       shutil.copy(strfile,rrcpath)
-                       
-                   if index == 7 :
-                       shutil.copy(strfile,srpath) 
-                       
-                   if index == 8 :
-                       shutil.copy(strfile,ceppath) 
-                       
-                   print('**************'+str(index)+'is ok!'+'********************')
-               elif delta < 0.7 and pdmp > 13:
-                   shutil.copy(strfile,unkownpath)
-                   
-               elif delta > 0.7:
-                   shutil.copy(strfile,NONpath)
-                    
-       except:
-              continue
-
-name=['name','period','prob','index', 'objectname', 'RA', 'DEC']      
-test = pd.DataFrame(columns=name,data=alltemp)#数据有三列，列名分别为one,two,three
-test.to_csv('E:/testcsv.csv',encoding='gbk')
-beep() 
-               
-               
+plt.figure(2)
+plt.plot(phases, resultmag, '.')
+plt.plot(sxdata, ifftdata)
+plt.xlabel('phase',fontsize=14)
+plt.ylabel('mag',fontsize=14)
+ax = plt.gca()
+ax.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
+ax.invert_yaxis() #y轴反向

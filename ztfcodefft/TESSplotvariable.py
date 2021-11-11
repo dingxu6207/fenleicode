@@ -15,10 +15,16 @@ from astropy.timeseries import LombScargle
 import shutil
 from tensorflow.keras.models import load_model
 from scipy.fftpack import fft,ifft
+import winsound
 
-model = load_model('model50.hdf5')
+model = load_model('model10.hdf5')
 #model = load_model('modelrot.hdf5')
 #model = load_model('cnnmodel.hdf5')
+def beep():
+    duration = 5000  # 持续时间以毫秒为单位，这里是5秒
+    freq = 440  # Hz
+    winsound.Beep(freq, duration)
+    
 def classfiydata(phasemag):
     sx1 = np.linspace(0,1,100)
     sy1 = np.interp(sx1, phasemag[:,0], phasemag[:,1])
@@ -45,8 +51,8 @@ def classifyfftdata(phases, resultmag, P):
     sy1 = np.copy(normalization_half_y)
     #model = load_model('modelall.hdf5')#eclipseothers,ztfmodule
     #nparraydata = np.reshape(sy1,(1,50,1)) #cnnmodel
-    #sy1 = sy1[0:45]
-    nparraydata = np.reshape(sy1,(1,50)) #mlpmodel
+    sy1 = sy1[0:10]
+    nparraydata = np.reshape(sy1,(1,10)) #mlpmodel
     prenpdata = model.predict(nparraydata)
 
     index = np.argmax(prenpdata[0])
@@ -158,7 +164,7 @@ def pholddata(per, times, fluxes):
 path = 'J:\\TESSDATA\\section1\\' 
 
 #file = 'tess2018206045859-s0001-0000000419744996-0120-s_lc.fits'
-file = 'tess2018206045859-s0001-0000000167524563-0120-s_lc.fits'
+file = 'tess2018206045859-s0001-0000000219171711-0120-s_lc.fits'
 tbjd, fluxes = readfits(path+file)
 
 plt.figure(3)
@@ -182,7 +188,6 @@ if delta <0.7 and pdmp < 13:
         phases, resultmag = pholddata(comper*2, tbjd, fluxes)
 
 
-phases, resultmag = pholddata(p, tbjd, fluxes)
 index = classifyfftdata(phases, resultmag, p)
 
 plt.figure(0)
@@ -194,4 +199,4 @@ ax.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
 ax.invert_yaxis() #y轴反向
 
 
-
+beep()
