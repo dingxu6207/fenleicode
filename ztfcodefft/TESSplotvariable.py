@@ -164,7 +164,7 @@ def pholddata(per, times, fluxes):
 path = 'J:\\TESSDATA\\section1\\' 
 
 #file = 'tess2018206045859-s0001-0000000419744996-0120-s_lc.fits'
-file = 'tess2018206045859-s0001-0000000219171711-0120-s_lc.fits'
+file = 'tess2018206045859-s0001-0000000030317301-0120-s_lc.fits'
 tbjd, fluxes = readfits(path+file)
 
 plt.figure(3)
@@ -199,4 +199,4 @@ ax.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
 ax.invert_yaxis() #y轴反向
 
 
-beep()
+#beep()

@@ -37,7 +37,7 @@ def classifyfftdata(phases, resultmag, P):
     prenpdata = model.predict(nparraydata)
 
     index = np.argmax(prenpdata[0])
-    return index
+    return index,np.max(prenpdata[0])
 
 def pholddata(per, times, fluxes):
     mags = -2.5*np.log10(fluxes)
@@ -80,7 +80,7 @@ P = 5.468
 phases, resultmag = pholddata(P, npjd, npmag)
 phasemag = zerophse(phases, resultmag)
 
-index = classifyfftdata(phases, resultmag, P)
+index,prob = classifyfftdata(phases, resultmag, P)
 
 
 plt.figure(2)
@@ -95,34 +95,42 @@ ax = plt.gca()
 ax.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
 ax.invert_yaxis() #y轴反向
 
-
 if index == 0:
     plt.title('Prediction is ROT')
+    print('probility is ROT'+str(prob))
+
     
 if index == 1:
     plt.title('Prediction is DSCT')
+    print('probility is DSCT'+str(prob))
 
 if index == 2:
     plt.title('Prediction is EA')
+    print('probility is EA'+str(prob))
 
 if index == 3:
     plt.title('Prediction is EW')
+    print('probility is EW'+str(prob))
 
 if index == 4:
     plt.title('Prediction is MIRA')
+    print('probility is MIRA'+str(prob))
     
 if index == 5:
     plt.title('Prediction is RRAB')
+    print('probility is RRAB'+str(prob))
     
 if index == 6:
     plt.title('Prediction is RRC')
+    print('probility is RRC'+str(prob))
     
 if index == 7:
     plt.title('Prediction is SR')  
+    print('probility is SR'+str(prob))
     
 if index == 8:
     plt.title('Prediction is CEP') 
+    print('probility is CEP'+str(prob))
 
-if index == 9:
-    plt.title('Prediction is CEP') 
+
 
