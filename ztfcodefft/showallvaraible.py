@@ -15,6 +15,7 @@ from astropy.timeseries import LombScargle
 import shutil
 from tensorflow.keras.models import load_model
 from scipy.fftpack import fft,ifft
+import shutil, os
 
 #model = load_model('modelrot.hdf5')
 def classfiydata(phasemag):
@@ -168,7 +169,8 @@ def pholddata(per, times, fluxes):
     resultmag = mag[sortIndi]
     return phases, resultmag
 
-path = 'J:\\TESSDATA\\section10variable\\EW\\'
+path = 'J:\\TESSDATA\\section1variable\\EA\\'
+pathdelete = 'J:\\TESSDATA\\section1variable\\deletefile\\'
 for root, dirs, files in os.walk(path):
    for file in files:
        strfile = os.path.join(root, file)
@@ -177,5 +179,15 @@ for root, dirs, files in os.walk(path):
            
            tbjd, fluxes = readfits(strfile)
            plt.plot(tbjd, fluxes,'.')
-           plt.pause(2)
+           plt.pause(0.5)
            plt.clf()
+           
+#           inputcode = input('d is delete,c is continue, b is break:')
+#           if inputcode == 'd':
+#               shutil.move(strfile, pathdelete)
+#           
+#           if inputcode == 'c':
+#               print('it is a!')
+#               
+#           if inputcode == 'b':
+#               break;
