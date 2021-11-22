@@ -15,7 +15,7 @@ from tensorflow.keras.models import load_model
 from scipy.fftpack import fft,ifft
 
 path = 'E:\\shunbianyuan\\phometry\\pipelinecode\\fenlei\\testdata\\CEP\\'
-file = '202734_3.8784172.csv'
+file = 'AP36430418_3.4395372.csv'
 data = pd.read_csv(path+file, sep = ',' )
 
 hjdmag = data[['hjd', 'mag']]
@@ -26,7 +26,7 @@ npmag = nphjmag[:,1]
 
 
 
-P = 3.8784172
+P = 3.4395372
 phases = foldAt(npjd, P)
 sortIndi = np.argsort(phases)
 phases = phases[sortIndi]
@@ -60,7 +60,7 @@ ax.invert_yaxis() #y轴反向
 sy1 = np.copy(normalization_half_y)
 #model = load_model('modelrot.hdf5')#eclipseothers,ztfmodule
 sy1 = sy1[0:10]
-model = load_model('model10.hdf5')#eclipseothers,ztfmodule
+model = load_model('model10N.hdf5')#eclipseothers,ztfmodule
 nparraydata = np.reshape(sy1,(1,10))
 prenpdata = model.predict(nparraydata)
 

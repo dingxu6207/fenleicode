@@ -22,7 +22,7 @@ def ztfdata(CSV_FILE_PATH, period):
     try:
         lenr = rg['r']
     except:
-        return np.array([0,0,0]),np.array([0,0,0])
+        return np.array([0,0,0]),np.array([0,0,0]),0
      
     nphjd = np.array(hjd)
     npmag = np.array(mag)
@@ -30,7 +30,7 @@ def ztfdata(CSV_FILE_PATH, period):
     try:
         hang = rg['g']
     except:
-        return np.array([0,0,0]),np.array([0,0,0])
+        return np.array([0,0,0]),np.array([0,0,0]),0
     
     nphjd = nphjd[hang:]
     npmag = npmag[hang:]
@@ -42,10 +42,12 @@ def ztfdata(CSV_FILE_PATH, period):
 
     s1 = np.diff(resultmag,2).std()/np.sqrt(6)
     s2 = np.std(resultmag)
+    bizhi = s2/s1
+    
     if (s2/s1)<2:
-        return np.array([0,0,0]),np.array([0,0,0])
+        return np.array([0,0,0]),np.array([0,0,0]),bizhi
     if len(resultmag)<50: 
-        return np.array([0,0,0]),np.array([0,0,0])
+        return np.array([0,0,0]),np.array([0,0,0]),bizhi
 
     N = 100
     x = np.linspace(0,1,N)
@@ -59,7 +61,7 @@ def ztfdata(CSV_FILE_PATH, period):
     normalization_half_y = normalization_y[range(int(N/2))] 
     normalization_half_y[0] = period/10
     
-    return half_x,normalization_half_y
+    return half_x,normalization_half_y,bizhi
 
 
 #tot=781602
@@ -85,74 +87,74 @@ for j in range(t1w+1):
         
         if os.path.getsize(filename)>100:
             if (dat[ID,24].upper()=='EA'):
-                sx1,sy1 = ztfdata(filename, P)
+                sx1,sy1,bi = ztfdata(filename, P)
                 sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
                 sx1sy1 = sx1sy1.T
-                if len(sx1) > 10:
-                    np.savetxt('I:\\ZTFDATA\\FFTDATA1\\EA\\'+sourceid+'.txt', sx1sy1)
+                if len(sx1) > 10 and bi>4:
+                    np.savetxt('J:\\ZTFDATA\\FFTDATA1\\EA\\'+sourceid+'.txt', sx1sy1)
             
-            if (dat[ID,24].upper()=='EW' and ID<100000):
-                sx1,sy1 = ztfdata(filename, P)
-                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
-                sx1sy1 = sx1sy1.T
-                if len(sx1) > 10:
-                    np.savetxt('I:\\ZTFDATA\\FFTDATA1\\EW\\'+sourceid+'.txt', sx1sy1)
+#            if (dat[ID,24].upper()=='EW' and ID<100000):
+#                sx1,sy1,bi = ztfdata(filename, P)
+#                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
+#                sx1sy1 = sx1sy1.T
+#                if len(sx1) > 10 and bi>4:
+#                    np.savetxt('J:\\ZTFDATA\\FFTDATA1\\EW\\'+sourceid+'.txt', sx1sy1)
         
-            if (dat[ID,24].upper()=='DSCT'):
-                sx1,sy1 = ztfdata(filename, P)
-                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
-                sx1sy1 = sx1sy1.T
-                if len(sx1) > 10:
-                    np.savetxt('I:\\ZTFDATA\\FFTDATA1\\DSCT\\'+sourceid+'.txt', sx1sy1)
-            
-            if (dat[ID,24].upper()=='BYDRA' and ID<800000):
-                sx1,sy1 = ztfdata(filename, P)
-                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
-                sx1sy1 = sx1sy1.T
-                if len(sx1) > 10:
-                    np.savetxt('I:\\ZTFDATA\\FFTDATA1\\BYDRA\\'+sourceid+'.txt', sx1sy1)
-            
-            if (dat[ID,24].upper()=='RR'):
-                sx1,sy1 = ztfdata(filename, P)
-                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
-                sx1sy1 = sx1sy1.T
-                if len(sx1) > 10:
-                    np.savetxt('I:\\ZTFDATA\\FFTDATA1\\RR\\'+sourceid+'.txt', sx1sy1)
-                
-            if (dat[ID,24].upper()=='SR' and ID<800000):
-                sx1,sy1 = ztfdata(filename, P)
-                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
-                sx1sy1 = sx1sy1.T
-                if len(sx1) > 10:
-                    np.savetxt('I:\\ZTFDATA\\FFTDATA1\\SR\\'+sourceid+'.txt', sx1sy1)
-
-            if (dat[ID,24].upper()=='RRC'):
-                sx1,sy1 = ztfdata(filename, P)
-                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
-                sx1sy1 = sx1sy1.T
-                if len(sx1) > 10:
-                    np.savetxt('I:\\ZTFDATA\\FFTDATA1\\RRC\\'+sourceid+'.txt', sx1sy1)
-                
-            if (dat[ID,24].upper()=='RSCVN' and ID<800000):
-                sx1,sy1 = ztfdata(filename, P)
-                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
-                sx1sy1 = sx1sy1.T
-                if len(sx1) > 10:
-                    np.savetxt('I:\\ZTFDATA\\FFTDATA1\\RSCVN\\'+sourceid+'.txt', sx1sy1)
-
-            if (dat[ID,24].upper()=='MIRA'):
-                sx1,sy1 = ztfdata(filename, P)
-                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
-                sx1sy1 = sx1sy1.T
-                if len(sx1) > 10:
-                    np.savetxt('I:\\ZTFDATA\\FFTDATA1\\MIRA\\'+sourceid+'.txt', sx1sy1)
-            
-            if (dat[ID,24].upper()=='CEP' or dat[ID,24].upper()=='CEPII'):
-                sx1,sy1 = ztfdata(filename, P)
-                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
-                sx1sy1 = sx1sy1.T
-                if len(sx1) > 10:
-                    np.savetxt('I:\\ZTFDATA\\FFTDATA1\\CEP\\'+sourceid+'.txt', sx1sy1)
+#            if (dat[ID,24].upper()=='DSCT'):
+#                sx1,sy1,bi = ztfdata(filename, P)
+#                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
+#                sx1sy1 = sx1sy1.T
+#                if len(sx1) > 10:
+#                    np.savetxt('I:\\ZTFDATA\\FFTDATA1\\DSCT\\'+sourceid+'.txt', sx1sy1)
+#            
+#            if (dat[ID,24].upper()=='BYDRA' and ID<800000):
+#                sx1,sy1,bi = ztfdata(filename, P)
+#                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
+#                sx1sy1 = sx1sy1.T
+#                if len(sx1) > 10:
+#                    np.savetxt('I:\\ZTFDATA\\FFTDATA1\\BYDRA\\'+sourceid+'.txt', sx1sy1)
+#            
+#            if (dat[ID,24].upper()=='RR'):
+#                sx1,sy1,bi = ztfdata(filename, P)
+#                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
+#                sx1sy1 = sx1sy1.T
+#                if len(sx1) > 10:
+#                    np.savetxt('I:\\ZTFDATA\\FFTDATA1\\RR\\'+sourceid+'.txt', sx1sy1)
+#                
+#            if (dat[ID,24].upper()=='SR' and ID<800000):
+#                sx1,sy1,bi = ztfdata(filename, P)
+#                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
+#                sx1sy1 = sx1sy1.T
+#                if len(sx1) > 10:
+#                    np.savetxt('I:\\ZTFDATA\\FFTDATA1\\SR\\'+sourceid+'.txt', sx1sy1)
+#
+#            if (dat[ID,24].upper()=='RRC'):
+#                sx1,sy1,bi = ztfdata(filename, P)
+#                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
+#                sx1sy1 = sx1sy1.T
+#                if len(sx1) > 10:
+#                    np.savetxt('I:\\ZTFDATA\\FFTDATA1\\RRC\\'+sourceid+'.txt', sx1sy1)
+#                
+#            if (dat[ID,24].upper()=='RSCVN' and ID<800000):
+#                sx1,sy1,bi = ztfdata(filename, P)
+#                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
+#                sx1sy1 = sx1sy1.T
+#                if len(sx1) > 10:
+#                    np.savetxt('I:\\ZTFDATA\\FFTDATA1\\RSCVN\\'+sourceid+'.txt', sx1sy1)
+#
+#            if (dat[ID,24].upper()=='MIRA'):
+#                sx1,sy1,bi = ztfdata(filename, P)
+#                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
+#                sx1sy1 = sx1sy1.T
+#                if len(sx1) > 10:
+#                    np.savetxt('I:\\ZTFDATA\\FFTDATA1\\MIRA\\'+sourceid+'.txt', sx1sy1)
+#            
+#            if (dat[ID,24].upper()=='CEP' or dat[ID,24].upper()=='CEPII'):
+#                sx1,sy1,bi = ztfdata(filename, P)
+#                sx1sy1 = np.vstack((sx1, sy1)) #纵向合并矩阵
+#                sx1sy1 = sx1sy1.T
+#                if len(sx1) > 10:
+#                    np.savetxt('I:\\ZTFDATA\\FFTDATA1\\CEP\\'+sourceid+'.txt', sx1sy1)
         ID+=1
 
 

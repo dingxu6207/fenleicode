@@ -15,13 +15,14 @@ from scipy import interpolate
 from scipy.fftpack import fft,ifft
 import pandas as pd
 
-model = load_model('modelrot.hdf5')
+#model = load_model('modelrot.hdf5')
+model = load_model('model10N.hdf5')
 model.summary()
 
 def classifyfftdata(phases, resultmag, P):
     phases = np.copy(phases)
     resultmag = np.copy(resultmag)
-    N = 100
+    N = 1000
     x = np.linspace(0,1,N)
     y = np.interp(x, phases, resultmag) 
 
@@ -33,11 +34,12 @@ def classifyfftdata(phases, resultmag, P):
     normalization_half_y[0] = P/10
     sy1 = np.copy(normalization_half_y)
     #model = load_model('modelall.hdf5')#eclipseothers,ztfmodule
-    nparraydata = np.reshape(sy1,(1,50))
+    sy1 = sy1[0:10]
+    nparraydata = np.reshape(sy1,(1,10))
     prenpdata = model.predict(nparraydata)
 
     index = np.argmax(prenpdata[0])
-    return index,np.max(prenpdata[0])
+    return index,np.max(prenpdata[0]),x,y
 
 def pholddata(per, times, fluxes):
     mags = -2.5*np.log10(fluxes)
@@ -70,21 +72,21 @@ def zerophse(phases, resultmag):
     return phasemag
 
 #path = 'E:\\shunbianyuan\\phometry\\pipelinecode\\fenlei\\testdata\\RRC\\'
-file = 'lcdd2_3_362_556.0_825.1_303.676_39.672_a.dat'
+file = 'lcdd4_0_1204_1224.9_61.7_341.96_-32.159_c.dat'
 nphjmag = np.loadtxt(file)
 npjd = nphjmag[:,0]
 npmag = nphjmag[:,1]
 
-P = 5.468
+P = 3.404 
 
 phases, resultmag = pholddata(P, npjd, npmag)
 phasemag = zerophse(phases, resultmag)
 
-index,prob = classifyfftdata(phases, resultmag, P)
+index,prob,x,y = classifyfftdata(phases, resultmag, P)
 
 
 plt.figure(2)
-plt.plot(phasemag[:,0], phasemag[:,1],'.')
+plt.plot(x, y,'.')
 ax = plt.gca()
 ax.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
 ax.invert_yaxis() #y轴反向

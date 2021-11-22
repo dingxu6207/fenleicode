@@ -79,5 +79,5 @@ data6 = np.vstack((data5, SRdata))
 data7 = np.vstack((data6, MIRAdata))
 data8 = np.vstack((data7, CEPdata))
 
-np.savetxt('ZTFDATAFFTALLSrot.txt', data8)
+np.savetxt('ZTFDATAFFTALLSrotN.txt', data8)
 
