@@ -169,8 +169,12 @@ def pholddata(per, times, fluxes):
     resultmag = mag[sortIndi]
     return phases, resultmag
 
-path = 'Z:\\DingXu\\TESSDATA\\2rt\\TESSDATAVARIABLE\\section1\\EA\\'
-pathdelete = 'Z:\\DingXu\\TESSDATA\\2rt\\TESSDATAVARIABLE\\section1\\EA\\'
+#TIC 259864042
+#path = 'J:\\TESSDATA\\section1variable\\EA\\'
+pathdelete = 'Z:\\DingXu\\TESSDATA\\jianlou\\ERROR\\'
+path = 'Z:\\DingXu\\TESSDATA\\jianlou\\section1\\EW\\'
+#path = 'Z:\\DingXu\\TESSDATA\\2rt\\TESSDATAVARIABLE\\section1\\EA\\'
+temp = []
 for root, dirs, files in os.walk(path):
    for file in files:
        strfile = os.path.join(root, file)
@@ -180,14 +184,24 @@ for root, dirs, files in os.walk(path):
            tbjd, fluxes = readfits(strfile)
            plt.plot(tbjd, fluxes,'.')
            plt.pause(1)
+           
+           while True:
+               inputcode = input('d is delete,b is break:')
+               if inputcode == 'd':
+                   shutil.move(strfile, pathdelete)
+                   temp.append(file)
+                   break
+             
+               if inputcode == 'b':
+                   break
+                
+               if inputcode == 'e':
+                   plt.clf()
+                   plt.plot(tbjd[0:2000], fluxes[0:2000],'.')
+                   plt.pause(5)
+                  
+               if inputcode == 'N':
+                  shutil.move(pathdelete+temp[-1], path) 
+               
            plt.clf()
            
-#           inputcode = input('d is delete,c is continue, b is break:')
-#           if inputcode == 'd':
-#               shutil.move(strfile, pathdelete)
-#           
-#           if inputcode == 'c':
-#               print('it is a!')
-#               
-#           if inputcode == 'b':
-#               break;

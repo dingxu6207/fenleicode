@@ -16,7 +16,7 @@ from scipy.fftpack import fft,ifft
 import pandas as pd
 
 #model = load_model('modelrot.hdf5')
-model = load_model('model10N.hdf5')
+model = load_model('model10N2.hdf5')
 model.summary()
 
 def classifyfftdata(phases, resultmag, P):
@@ -74,8 +74,8 @@ def zerophse(phases, resultmag):
 #path = 'E:\\shunbianyuan\\phometry\\pipelinecode\\fenlei\\testdata\\RRC\\'
 file = 'lcdd4_0_1204_1224.9_61.7_341.96_-32.159_c.dat'
 nphjmag = np.loadtxt(file)
-npjd = nphjmag[:,0]
-npmag = nphjmag[:,1]
+npjd = nphjmag[:,0][0:300]
+npmag = nphjmag[:,1][0:300]
 
 P = 3.404 
 
@@ -83,6 +83,7 @@ phases, resultmag = pholddata(P, npjd, npmag)
 phasemag = zerophse(phases, resultmag)
 
 index,prob,x,y = classifyfftdata(phases, resultmag, P)
+
 
 
 plt.figure(2)

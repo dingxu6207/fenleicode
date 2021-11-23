@@ -60,7 +60,7 @@ ax.invert_yaxis() #y轴反向
 sy1 = np.copy(normalization_half_y)
 #model = load_model('modelrot.hdf5')#eclipseothers,ztfmodule
 sy1 = sy1[0:10]
-model = load_model('model10N.hdf5')#eclipseothers,ztfmodule
+model = load_model('model10N2.hdf5')#eclipseothers,ztfmodule
 nparraydata = np.reshape(sy1,(1,10))
 prenpdata = model.predict(nparraydata)
 
