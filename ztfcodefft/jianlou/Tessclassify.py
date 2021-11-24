@@ -162,18 +162,11 @@ def pholddata(per, times, fluxes):
     resultmag = mag[sortIndi]
     return phases, resultmag
 
-path = 'Z:\\DingXu\\TESSDATA\\2rt\\TESSDATAVARIABLE\\section1\\DSCT\\' #DSCT ROT CEP RRC RRAB 
-#ROTpath = 'J:\\TESSDATA\\section12variable\\ROT\\'
-#dsctpath = 'J:\\TESSDATA\\section12variable\\DSCT\\'
-eapath = 'Z:\\DingXu\\TESSDATA\\jianlou\\section1\\EA\\'
-ewpath = 'Z:\\DingXu\\TESSDATA\\jianlou\\section1\\EW\\'
-#mirapath = 'J:\\TESSDATA\\section12variable\\MIRA\\'
-#rrabpath = 'J:\\TESSDATA\\section12variable\\RRAB\\'
-#rrcpath = 'J:\\TESSDATA\\section12variable\\RRC\\'
-#srpath = 'J:\\TESSDATA\\section12variable\\SR\\'
-#ceppath = 'J:\\TESSDATA\\section12variable\\CEP\\'
-#NONpath = 'J:\\TESSDATA\\section12variable\\NON\\'
-#unkownpath = 'J:\\TESSDATA\\section12variable\\UNKNOWN\\'
+sectionnum = '2'
+path = 'Z:\\DingXu\\TESSDATA\\2rt\\TESSDATAVARIABLE\\section'+sectionnum+'\\DSCT\\' #ROT UNKNOWN  DSCT
+eapath = 'Z:\\DingXu\\TESSDATA\\jianlou\\section'+sectionnum+'\\EA\\'
+ewpath = 'Z:\\DingXu\\TESSDATA\\jianlou\\section'+sectionnum+'\\EW\\'
+
 
 count = 0
 tempfile = []
@@ -188,68 +181,16 @@ for root, dirs, files in os.walk(path):
                count = count+1
                print('*********it is time'+str(count)+'********************')
                comper, wrongP, maxpower = computeperiod(tbjd, fluxes)
-               pdmp, delta  = computePDM(1/comper, tbjd, fluxes, 1)
-               if delta <0.7 and pdmp < 13:
-                   pdmp2, delta2  = computePDM(1/(comper*2), tbjd, fluxes, 2)
-           
-                   if (delta/delta2)<0.8: #1.2
-                       p = comper
-                       phases, resultmag = pholddata(comper, tbjd, fluxes)
-                   else:
-                       p = comper*2 
-                       phases, resultmag = pholddata(comper*2, tbjd, fluxes)
-           
-                   index,prob = classifyfftdata(phases, resultmag, p)
-#                   tempfile = []
-#                   tempfile.append(file)
-#                   tempfile.append(p)
-#                   tempfile.append(prob)
-#                   tempfile.append(index)
-#                   tempfile.append(objectname)#objectname, RA, DEC
-#                   tempfile.append(RA)
-#                   tempfile.append(DEC)
-#                   alltemp.append(tempfile)
-#                   print(tempfile)
-#                   if index == 0:
-#                       shutil.copy(strfile,ROTpath)
-#    
-#                   if index == 1:
-#                       shutil.copy(strfile,dsctpath)
-
-                   if index == 2:
-                       shutil.copy(strfile,eapath)
-
-                   if index == 3:
-                       shutil.copy(strfile,ewpath)
-
-#                   if index == 4:
-#                       shutil.copy(strfile,mirapath)
-#    
-#                   if index == 5 :
-#                       shutil.copy(strfile,rrabpath)
-#                       
-#                   if index == 6 :
-#                       shutil.copy(strfile,rrcpath)
-#                       
-#                   if index == 7 :
-#                       shutil.copy(strfile,srpath) 
-#                       
-#                   if index == 8 :
-#                       shutil.copy(strfile,ceppath) 
-#                       
-                   print('**************'+str(index)+'is ok!'+'********************')
-#               elif delta < 0.7 and pdmp > 13:
-#                   shutil.copy(strfile,unkownpath)
-#                   
-#               elif delta > 0.7:
-#                   shutil.copy(strfile,NONpath)
-                    
+               p = comper*2 #p一倍周期捡漏和2倍周期分别捡漏
+               phases, resultmag = pholddata(p, tbjd, fluxes)
+               index,prob = classifyfftdata(phases, resultmag, p)
+               if index == 2:
+                   shutil.copy(strfile,eapath)
+                   print('*********index'+str(index)+'is very ok************')    
        except:
               continue
 
-#name=['name','period','prob','index', 'objectname', 'RA', 'DEC']      
-#test = pd.DataFrame(columns=name,data=alltemp)#数据有三列，列名分别为one,two,three
-#test.to_csv('E:/testcsv.csv',encoding='gbk')
+
 beep() 
                
                

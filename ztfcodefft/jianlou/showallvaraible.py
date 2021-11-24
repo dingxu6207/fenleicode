@@ -172,8 +172,8 @@ def pholddata(per, times, fluxes):
 #TIC 259864042
 #path = 'J:\\TESSDATA\\section1variable\\EA\\'
 pathdelete = 'Z:\\DingXu\\TESSDATA\\jianlou\\ERROR\\'
-path = 'Z:\\DingXu\\TESSDATA\\jianlou\\section1\\EW\\'
-#path = 'Z:\\DingXu\\TESSDATA\\2rt\\TESSDATAVARIABLE\\section1\\EA\\'
+path = 'Z:\\DingXu\\TESSDATA\\jianlou\\section2\\EA\\' #捡漏中清除
+#path = 'Z:\\DingXu\\TESSDATA\\2rt\\TESSDATAVARIABLE\\section1\\EW\\' #EA EW脏数据清除
 temp = []
 for root, dirs, files in os.walk(path):
    for file in files:
@@ -188,8 +188,13 @@ for root, dirs, files in os.walk(path):
            while True:
                inputcode = input('d is delete,b is break:')
                if inputcode == 'd':
-                   shutil.move(strfile, pathdelete)
-                   temp.append(file)
+                   if(os.path.exists(pathdelete+file)):
+                       os.remove(pathdelete+file)
+                       shutil.move(strfile, pathdelete)
+                       temp.append(file)
+                   else:
+                       shutil.move(strfile, pathdelete)
+                       temp.append(file)
                    break
              
                if inputcode == 'b':

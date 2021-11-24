@@ -169,9 +169,15 @@ def pholddata(per, times, fluxes):
     resultmag = mag[sortIndi]
     return phases, resultmag
 
-path = 'Z:\\DingXu\\TESSDATA\\2rt\\TESSDATAVARIABLE\\section1\\ROT\\'
-pathdelete = 'Z:\\DingXu\\TESSDATA\\2rt\\TESSDATAVARIABLE\\section1\\EA\\'
-for root, dirs, files in os.walk(path):
+#TIC 259864042
+#CEP DSCT RRAB RRC SR
+sectionnum = '2'
+frompath = 'Z:\\DingXu\\TESSDATA\\2rt\\TESSDATAVARIABLE\\section'+sectionnum+'\\SR\\'
+pathdelete = 'Z:\\DingXu\\TESSDATA\\jianlou\\ERROR\\'
+EApath = 'Z:\\DingXu\\TESSDATA\\2rt\\TESSDATAVARIABLE\\section'+sectionnum+'\\EA\\' #EA 添加路径
+EWpath = 'Z:\\DingXu\\TESSDATA\\2rt\\TESSDATAVARIABLE\\section'+sectionnum+'\\EW\\' #EW 添加路径
+temp = []
+for root, dirs, files in os.walk(frompath):
    for file in files:
        strfile = os.path.join(root, file)
        if (strfile[-5:] == '.fits'):
@@ -180,14 +186,52 @@ for root, dirs, files in os.walk(path):
            tbjd, fluxes = readfits(strfile)
            plt.plot(tbjd, fluxes,'.')
            plt.pause(1)
+           
+           while True:
+               inputcode = input('A is EA,W is EW:')
+               if inputcode == 'a':
+                   if(os.path.exists(EApath+file)):
+                       os.remove(EApath+file)
+                       shutil.move(strfile, EApath)
+                       temp.append(file)
+                   else:
+                       shutil.move(strfile, EApath)
+                       temp.append(file)
+                   break
+               
+               if inputcode == 'w':
+                   if(os.path.exists(EWpath+file)):
+                       os.remove(EWpath+file)
+                       shutil.move(strfile, EWpath)
+                       temp.append(file)
+                   else:
+                       shutil.move(strfile, EWpath)
+                       temp.append(file)
+                   break
+               
+               if inputcode == 'd':
+                   if(os.path.exists(pathdelete+file)):
+                       os.remove(pathdelete+file)
+                       shutil.move(strfile, pathdelete)
+                       temp.append(file)
+                   else:
+                       shutil.move(strfile, pathdelete)
+                       temp.append(file)
+                   break
+             
+               if inputcode == 'b':
+                   break
+                
+               if inputcode == 'e':
+                   plt.clf()
+                   plt.plot(tbjd[0:2000], fluxes[0:2000],'.')
+                   plt.pause(5)
+                  
+               if inputcode == 'NA':
+                  shutil.move(EApath+temp[-1], frompath) 
+                  
+               if inputcode == 'NW':
+                  shutil.move(EWpath+temp[-1], frompath) 
+               
            plt.clf()
            
-#           inputcode = input('d is delete,c is continue, b is break:')
-#           if inputcode == 'd':
-#               shutil.move(strfile, pathdelete)
-#           
-#           if inputcode == 'c':
-#               print('it is a!')
-#               
-#           if inputcode == 'b':
-#               break;
