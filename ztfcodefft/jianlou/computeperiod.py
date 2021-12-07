@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Nov  6 21:12:54 2021
+Created on Tue Dec  7 16:27:50 2021
 
 @author: dingxu
 """
@@ -160,7 +160,7 @@ def pholddata(per, times, fluxes):
     mags = mags-np.mean(mags)
     
     lendata =  int((per/13)*len(times))
-     
+    
     time = times[0:lendata]
     mag = mags[0:lendata]
     phases = foldAt(time, per)
@@ -169,8 +169,15 @@ def pholddata(per, times, fluxes):
     resultmag = mag[sortIndi]
     return phases, resultmag
 
-
-
+def stddata(timedata, fluxdata, P):
+    yuanflux = np.copy(fluxdata)
+    yuanmag = -2.5*np.log10(yuanflux)
+    
+    phases, resultmag = pholddata(P, timedata, fluxdata)
+    datamag = np.copy(resultmag)
+    datanoise = np.diff(datamag,2).std()/np.sqrt(6)
+    stddata = np.std(yuanmag)
+    return stddata/datanoise
 
 #TIC 259864042
 #path = 'J:\\TESSDATA\\section1variable\\EA\\'
@@ -183,33 +190,41 @@ for root, dirs, files in os.walk(path):
        strfile = os.path.join(root, file)
        if (strfile[-5:] == '.fits'):
            print(strfile)
-           
            tbjd, fluxes = readfits(strfile)
+           
+#           plt.figure(1)
+#           plt.plot(tbjd, fluxes,'.')
+#           plt.pause(1)
+#           plt.clf()
+           
+           period, wrongP, maxpower = computeperiod(tbjd, fluxes)
+           stdodata1 = stddata(tbjd, fluxes, period)
+           stdodata2 = stddata(tbjd, fluxes, period*2)
+           
+           if stdodata1>2 or stdodata2>2:
+               print('it is a variable star!')
+               
+           if (stdodata2/stdodata1)>1.5:
+               phases, resultmag = pholddata(period*2, tbjd, fluxes)
+           else:
+               phases, resultmag = pholddata(period, tbjd, fluxes)
+               
+           print('stdodata1= '+str(stdodata1))
+           print('stdodata2= '+str(stdodata2))
+           
+           plt.figure(0)
            plt.plot(tbjd, fluxes,'.')
            plt.pause(1)
-           
-           while True:
-               inputcode = input('d is delete,b is break:')
-               if inputcode == 'd':
-                   if(os.path.exists(pathdelete+file)):
-                       os.remove(pathdelete+file)
-                       shutil.move(strfile, pathdelete)
-                       temp.append(file)
-                   else:
-                       shutil.move(strfile, pathdelete)
-                       temp.append(file)
-                   break
-             
-               if inputcode == 'b':
-                   break
-                
-               if inputcode == 'e':
-                   plt.clf()
-                   plt.plot(tbjd[0:2000], fluxes[0:2000],'.')
-                   plt.pause(5)
-                  
-               if inputcode == 'N':
-                  shutil.move(pathdelete+temp[-1], path) 
-               
            plt.clf()
            
+           
+           plt.figure(1)
+           plt.plot(phases, resultmag,'.')
+           plt.title(str(stdodata2/stdodata1))
+           ax = plt.gca()
+           ax.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
+           ax.invert_yaxis() #y轴反向
+           plt.pause(1)
+           plt.clf()
+           
+           #

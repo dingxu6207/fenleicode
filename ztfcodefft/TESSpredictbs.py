@@ -168,8 +168,8 @@ def pholddata(per, times, fluxes):
     resultmag = mag[sortIndi]
     return phases, resultmag
 
-path = 'J:\\TESSDATA\\section1\\' 
-file = 'tess2018206045859-s0001-0000000029281992-0120-s_lc.fits'
+path = 'E:\\shunbianyuan\\phometry\\pipelinecode\\fenlei\\testdata\\' 
+file = 'tess2018206045859-s0001-0000000441406061-0120-s_lc.fits'
 
 tbjd, fluxes = readfits(path+file)
 comper0, wrongP, maxpower = computeperiod(tbjd, fluxes)

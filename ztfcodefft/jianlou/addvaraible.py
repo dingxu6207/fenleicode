@@ -171,7 +171,7 @@ def pholddata(per, times, fluxes):
 
 #TIC 259864042
 #CEP DSCT RRAB RRC SR
-sectionnum = '2'
+sectionnum = '3'
 frompath = 'Z:\\DingXu\\TESSDATA\\2rt\\TESSDATAVARIABLE\\section'+sectionnum+'\\SR\\'
 pathdelete = 'Z:\\DingXu\\TESSDATA\\jianlou\\ERROR\\'
 EApath = 'Z:\\DingXu\\TESSDATA\\2rt\\TESSDATAVARIABLE\\section'+sectionnum+'\\EA\\' #EA 添加路径

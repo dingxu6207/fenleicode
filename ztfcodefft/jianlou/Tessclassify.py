@@ -162,7 +162,7 @@ def pholddata(per, times, fluxes):
     resultmag = mag[sortIndi]
     return phases, resultmag
 
-sectionnum = '2'
+sectionnum = '3'
 path = 'Z:\\DingXu\\TESSDATA\\2rt\\TESSDATAVARIABLE\\section'+sectionnum+'\\DSCT\\' #ROT UNKNOWN  DSCT
 eapath = 'Z:\\DingXu\\TESSDATA\\jianlou\\section'+sectionnum+'\\EA\\'
 ewpath = 'Z:\\DingXu\\TESSDATA\\jianlou\\section'+sectionnum+'\\EW\\'
@@ -186,7 +186,10 @@ for root, dirs, files in os.walk(path):
                index,prob = classifyfftdata(phases, resultmag, p)
                if index == 2:
                    shutil.copy(strfile,eapath)
-                   print('*********index'+str(index)+'is very ok************')    
+                   print('*********index'+str(index)+'is very ok************') 
+               if index == 3:
+                   shutil.copy(strfile,ewpath)
+                   print('*********index'+str(index)+'is very ok************')
        except:
               continue
 
