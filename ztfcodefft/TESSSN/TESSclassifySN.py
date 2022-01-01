@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Aug 10 15:56:50 2021
+Created on Tue Dec  7 23:04:24 2021
 
 @author: dingxu
 """
@@ -15,6 +15,7 @@ from astropy.timeseries import LombScargle
 import shutil
 from tensorflow.keras.models import load_model
 from scipy.fftpack import fft,ifft
+import pandas as pd  
 import winsound
 
 model = load_model('model10.hdf5')
@@ -56,7 +57,7 @@ def classifyfftdata(phases, resultmag, P):
     prenpdata = model.predict(nparraydata)
 
     index = np.argmax(prenpdata[0])
-    return index
+    return index, np.max(prenpdata[0])
 
 def readfits(fits_file):
     with fits.open(fits_file, mode="readonly") as hdulist:
@@ -72,8 +73,10 @@ def readfits(fits_file):
         time = time.flatten()
         flux = pdcsap_fluxes[indexflux]
         flux =  flux.flatten()
-        
-        return time, flux
+        objectname = hdulist[0].header['OBJECT']
+        RA = hdulist[0].header['RA_OBJ']
+        DEC = hdulist[0].header['DEC_OBJ']
+        return time, flux, objectname, RA, DEC
 
 def zerophse(phases, resultmag):
     listmag = resultmag.tolist()
@@ -159,44 +162,112 @@ def pholddata(per, times, fluxes):
     resultmag = mag[sortIndi]
     return phases, resultmag
 
+def stddata(timedata, fluxdata, P):
+    yuanflux = np.copy(fluxdata)
+    yuanmag = -2.5*np.log10(yuanflux)
+    
+    phases, resultmag = pholddata(P, timedata, fluxdata)
+    datamag = np.copy(resultmag)
+    datanoise = np.diff(datamag,2).std()/np.sqrt(6)
+    stddata = np.std(yuanmag)
+    return stddata/datanoise
 
+path = 'E:\\TESSDATA\\section43\\'
+ROTpath = 'I:\\TESSDATA\\sectio43\\ROT\\'
+dsctpath = 'I:\\TESSDATA\\section43\\DSCT\\'
+eapath = 'I:\\TESSDATA\\section43\\EA\\'
+ewpath = 'I:\\TESSDATA\\section43\\EW\\'
+mirapath = 'I:\\TESSDATA\\section43\\MIRA\\'
+rrabpath = 'I:\\TESSDATA\\section43\\RRAB\\'
+rrcpath = 'I:\\TESSDATA\\section43\\RRC\\'
+srpath = 'I:\\TESSDATA\\section43\\SR\\'
+ceppath = 'I:\\TESSDATA\\section43\\CEP\\'
+NONpath = 'I:\\TESSDATA\\section43\\NON\\'
+unkownpath = 'I:\\TESSDATA\\section43\\UNKNOWN\\'
 
-path = 'I:\\TESSDATA\\section1\\DSCT\\' 
+count = 0
+tempfile = []
+alltemp = []
+for root, dirs, files in os.walk(path):
+   for file in files:
+       strfile = os.path.join(root, file)
+       if (strfile[-5:] == '.fits'):
+           print(strfile)
+       try:
+               tbjd, fluxes, objectname, RA, DEC = readfits(strfile)
+               count = count+1
+               print('*********it is time'+str(count)+'********************')
+               comper, wrongP, maxpower = computeperiod(tbjd, fluxes)
+               #计算两个周期的标准差
+               stdodata1 = stddata(tbjd, fluxes, comper)
+               stdodata2 = stddata(tbjd, fluxes, comper*2)
+               
+               print('stdodata1= '+str(stdodata1))
+               print('stdodata2= '+str(stdodata2))
+               print('period= '+str(comper))
+           
+               if stdodata1>2 or stdodata2>2:
+                   print('it is a variable star!')
+               
+                   if (stdodata2/stdodata1)>1.5:
+                       P = comper*2
+                       phases, resultmag = pholddata(comper*2, tbjd, fluxes)
+                   else:
+                       P = comper
+                       phases, resultmag = pholddata(comper, tbjd, fluxes)
+           
+                   index,prob = classifyfftdata(phases, resultmag, P)
+                   tempfile = []
+                   tempfile.append(file)
+                   tempfile.append(P)
+                   tempfile.append(prob)
+                   tempfile.append(index)
+                   tempfile.append(objectname)#objectname, RA, DEC
+                   tempfile.append(RA)
+                   tempfile.append(DEC)
+                   tempfile.append(wrongP)
+                   alltemp.append(tempfile)
+                   
+                   if index == 0:
+                       shutil.copy(strfile,ROTpath)
+    
+                   if index == 1:
+                       shutil.copy(strfile,dsctpath)
 
-#file = 'tess2018206045859-s0001-0000000419744996-0120-s_lc.fits'
-file = 'tess2018206045859-s0001-0000000348772511-0120-s_lc.fits'
-tbjd, fluxes = readfits(path+file)
+                   if index == 2:
+                       shutil.copy(strfile,eapath)
 
-plt.figure(3)
-plt.plot(tbjd, fluxes, '.')
-plt.xlabel('JD',fontsize=14)
-plt.ylabel('FLUX',fontsize=14) 
+                   if index == 3:
+                       shutil.copy(strfile,ewpath)
 
+                   if index == 4:
+                       shutil.copy(strfile,mirapath)
+    
+                   if index == 5 :
+                       shutil.copy(strfile,rrabpath)
+                       
+                   if index == 6 :
+                       shutil.copy(strfile,rrcpath)
+                       
+                   if index == 7 :
+                       shutil.copy(strfile,srpath) 
+                       
+                   if index == 8 :
+                       shutil.copy(strfile,ceppath) 
+                       
+                   print('**************'+str(index)+'is ok!'+'********************')
+              
+                   
+               else:
+                   #shutil.copy(strfile,NONpath)
+                   print('it is nonstar!')
+                    
+       except:
+              continue
 
-
-
-comper, wrongP, maxpower = computeperiod(tbjd, fluxes)
-pdmp, delta  = computePDM(1/comper, tbjd, fluxes, 1)
-if delta <0.7 and pdmp < 13:
-    pdmp2, delta2  = computePDM(1/(comper*2), tbjd, fluxes, 2)
-    print(delta/delta2)       
-    if (delta/delta2)<1.2:
-        p = comper
-        phases, resultmag = pholddata(comper, tbjd, fluxes)
-    else:
-        p = comper*2
-        phases, resultmag = pholddata(comper*2, tbjd, fluxes)
-
-
-index = classifyfftdata(phases, resultmag, p)
-
-plt.figure(0)
-plt.plot(phases, resultmag, '.')
-plt.xlabel('phase',fontsize=14)
-plt.ylabel('mag',fontsize=14) 
-ax = plt.gca()
-ax.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
-ax.invert_yaxis() #y轴反向
-
-
-#beep()
+name=['name','period','prob','index', 'objectname', 'RA', 'DEC', 'wrongP']      
+test = pd.DataFrame(columns=name,data=alltemp)#数据有三列，列名分别为one,two,three
+test.to_csv('I:\\TESSDATA\\testcsv43.csv',encoding='gbk')
+beep() 
+               
+               

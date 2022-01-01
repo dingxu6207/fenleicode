@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Nov  6 21:12:54 2021
+Created on Tue Aug 10 15:56:50 2021
 
 @author: dingxu
 """
@@ -15,9 +15,17 @@ from astropy.timeseries import LombScargle
 import shutil
 from tensorflow.keras.models import load_model
 from scipy.fftpack import fft,ifft
-import shutil, os
+import winsound
+from scipy import interpolate
 
+model = load_model('model10N2.hdf5')
 #model = load_model('modelrot.hdf5')
+#model = load_model('cnnmodel.hdf5')
+def beep():
+    duration = 5000  # 持续时间以毫秒为单位，这里是5秒
+    freq = 440  # Hz
+    winsound.Beep(freq, duration)
+    
 def classfiydata(phasemag):
     sx1 = np.linspace(0,1,100)
     sy1 = np.interp(sx1, phasemag[:,0], phasemag[:,1])
@@ -43,7 +51,9 @@ def classifyfftdata(phases, resultmag, P):
     normalization_half_y[0] = P/10
     sy1 = np.copy(normalization_half_y)
     #model = load_model('modelall.hdf5')#eclipseothers,ztfmodule
-    nparraydata = np.reshape(sy1,(1,50))
+    #nparraydata = np.reshape(sy1,(1,50,1)) #cnnmodel
+    sy1 = sy1[0:10]
+    nparraydata = np.reshape(sy1,(1,10)) #mlpmodel
     prenpdata = model.predict(nparraydata)
 
     index = np.argmax(prenpdata[0])
@@ -97,15 +107,8 @@ def computeperiod(JDtime, targetflux):
     wrongP = ls.false_alarm_probability(power.max())
     return period, wrongP, maxpower
 
-def computeperiodbs(JDtime, targetflux):
-    from astropy.timeseries import BoxLeastSquares
-    model = BoxLeastSquares(JDtime, targetflux)
-    results = model.autopower(0.16)
-    period = results.period[np.argmax(results.power)]
-    return period, 0, 0
 
-
-def computebindata1(lendata):
+def computebindata(lendata, fg):
     
     if lendata>5000:
         bindata = int(lendata/100)
@@ -117,38 +120,26 @@ def computebindata1(lendata):
         bindata = int(lendata/3)
     else:
         bindata = int(lendata/2)
-    return bindata
-
-def computebindata2(lendata):
+    if fg == 1:
+        return bindata
+    if fg == 2:
+        return (bindata*2)
     
-    if lendata>5000:
-        bindata = int(lendata/100)
-    elif lendata>3000:
-        bindata = int(lendata/10)
-    elif lendata>400:
-        bindata = int(lendata/6)
-    elif lendata>200:
-        bindata = int(lendata/3)
-    else:
-        bindata = int(lendata/2)
-    return bindata*2
 
 def computePDM(f0, time, fluxes, flag):
     period = 1/f0
-    lendata =  int((period/13)*len(time))
+    lendata =  int((period/26)*2*len(time))
     fluxes = fluxes[0:lendata]
     time = time[0:lendata]
     mag = -2.5*np.log10(fluxes)
     mag = mag-np.mean(mag)
     S = pyPDM.Scanner(minVal=f0-0.01, maxVal=f0+0.01, dVal=0.001, mode="frequency")
     P = pyPDM.PyPDM(time, mag)
-    #bindata = int(len(mag)/20)
-    #bindata = 100
     lenmag = len(mag)
     if flag == 1:
-        bindata = computebindata1(lenmag)
+        bindata = computebindata(lenmag, 1)
     elif flag == 2:
-        bindata = computebindata2(lenmag/2)
+        bindata = computebindata(lenmag/2, 2)
         
     f2, t2 = P.pdmEquiBin(bindata, S)
     delta = np.min(t2)
@@ -159,7 +150,7 @@ def pholddata(per, times, fluxes):
     mags = -2.5*np.log10(fluxes)
     mags = mags-np.mean(mags)
     
-    lendata =  int((per/13)*len(times))
+    lendata =  int((per/26)*2*len(times))
      
     time = times[0:lendata]
     mag = mags[0:lendata]
@@ -169,26 +160,54 @@ def pholddata(per, times, fluxes):
     resultmag = mag[sortIndi]
     return phases, resultmag
 
-#path = 'Z:\\DingXu\\TESSDATA\\2rt\\TESSDATAVARIABLE\\section1\\ROT\\'
-#pathdelete = 'Z:\\DingXu\\TESSDATA\\2rt\\CEP\\section1\\EA\\'
-path = 'I:\\TESSDATA\\section42\\RRC\\'
-for root, dirs, files in os.walk(path):
-   for file in files:
-       strfile = os.path.join(root, file)
-       if (strfile[-5:] == '.fits'):
-           print(strfile)
-           
-           tbjd, fluxes = readfits(strfile)
-           plt.plot(tbjd, fluxes,'.')
-           plt.pause(1)
-           plt.clf()
-           
-#           inputcode = input('d is delete,c is continue, b is break:')
-#           if inputcode == 'd':
-#               shutil.move(strfile, pathdelete)
-#           
-#           if inputcode == 'c':
-#               print('it is a!')
-#               
-#           if inputcode == 'b':
-#               break;
+def stddata(timedata, fluxdata, P):
+    yuanflux = np.copy(fluxdata)
+    yuanmag = -2.5*np.log10(yuanflux)
+    
+    phases, resultmag = pholddata(P, timedata, fluxdata)
+    datamag = np.copy(resultmag)
+    datanoise = np.diff(datamag,2).std()/np.sqrt(6)
+    stddata = np.std(yuanmag)
+    return stddata/datanoise
+    #return datanoise
+
+#path = 'J:\\TESSDATA\\section38\\ROT\\' 
+path = 'J:\\TESSDATA\\section2\\' 
+
+#file = 'tess2018206045859-s0001-0000000419744996-0120-s_lc.fits'
+file = 'tess2018234235059-s0002-0000000439399635-0121-s_lc.fits'
+
+tbjd, fluxes = readfits(path+file)
+
+plt.figure(3)
+plt.plot(tbjd, fluxes, '.')
+plt.xlabel('JD',fontsize=14)
+plt.ylabel('FLUX',fontsize=14) 
+
+
+
+
+comper, wrongP, maxpower = computeperiod(tbjd, fluxes)
+stdodata1 = stddata(tbjd, fluxes, comper)
+stdodata2 = stddata(tbjd, fluxes, comper*2)
+print(stdodata2/stdodata1)
+if (stdodata2/stdodata1)>1.0:
+    P = comper*2
+    phases, resultmag = pholddata(comper*2, tbjd, fluxes)
+else:
+    P = comper
+    phases, resultmag = pholddata(comper, tbjd, fluxes)
+
+index = classifyfftdata(phases, resultmag, P)
+print(index)
+
+plt.figure(0)
+plt.plot(phases, resultmag, '.')
+plt.xlabel('phase',fontsize=14)
+plt.ylabel('mag',fontsize=14) 
+ax = plt.gca()
+ax.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
+ax.invert_yaxis() #y轴反向
+
+
+#beep()

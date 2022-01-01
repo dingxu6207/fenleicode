@@ -50,26 +50,7 @@ def pholddata(per, times, fluxes):
     resultmag = mags[sortIndi]
     return phases, resultmag
 
-def zerophse(phases, resultmag):
-    listmag = resultmag.tolist()
-    listmag.extend(listmag)
-    listphrase = phases.tolist()
-    listphrase.extend(listphrase+np.max(1))
-    
-    nplistmag = np.array(listmag)
-    sortmag = np.sort(nplistmag)
-    maxindex = np.median(sortmag[-1:])
-    indexmag = listmag.index(maxindex)
-    nplistphrase = np.array(listphrase)
-    nplistphrase = nplistphrase-nplistphrase[indexmag]
-    nplistmag = np.array(listmag)
-    
-    phasemag = np.vstack((nplistphrase, nplistmag)) #纵向合并矩阵
-    phasemag = phasemag.T
-    phasemag = phasemag[phasemag[:,0]>=0]
-    phasemag = phasemag[phasemag[:,0]<=1]
-    
-    return phasemag
+
 
 #path = 'E:\\shunbianyuan\\phometry\\pipelinecode\\fenlei\\testdata\\RRC\\'
 file = 'lcdd4_0_1204_1224.9_61.7_341.96_-32.159_c.dat'
@@ -80,7 +61,7 @@ npmag = nphjmag[:,1][0:300]
 P = 3.404 
 
 phases, resultmag = pholddata(P, npjd, npmag)
-phasemag = zerophse(phases, resultmag)
+
 
 index,prob,x,y = classifyfftdata(phases, resultmag, P)
 

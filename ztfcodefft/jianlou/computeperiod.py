@@ -183,7 +183,10 @@ def stddata(timedata, fluxdata, P):
 #path = 'J:\\TESSDATA\\section1variable\\EA\\'
 pathdelete = 'Z:\\DingXu\\TESSDATA\\jianlou\\ERROR\\'
 #path = 'Z:\\DingXu\\TESSDATA\\jianlou\\section3\\EW\\' #捡漏中清除
-path = 'Z:\\DingXu\\TESSDATA\\2rt\\TESSDATAVARIABLE\\section3\\EW\\' #EA EW脏数据清除
+#path = 'Z:\\DingXu\\TESSDATA\\2rt\\TESSDATAVARIABLE\\section3\\EW\\' #EA EW脏数据清除
+#path = 'J:\\TESSDATA\\section2variable\\NON\\'
+path = 'Z:\\DingXu\\TESSDATA\\DATA\\section2\\RRC\\'
+#path = 'Z:\\DingXu\\TESSDATA\\2rt\\TESSDATAVARIABLE\\section1\\RRAB\\'
 temp = []
 for root, dirs, files in os.walk(path):
    for file in files:
