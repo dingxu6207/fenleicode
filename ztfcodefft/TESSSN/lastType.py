@@ -50,3 +50,10 @@ data['Type'] = temp
 
 savedata = data[['objectname', 'RA', 'DEC', 'prob', 'period', 'Type']]
 savedata.to_csv('savevariable.csv',index=0)
+
+sectiondata = pd.read_csv('savevariable.csv')
+EAEW = pd.read_csv('EAEW.csv')
+
+#sectiondata = sectiondata[sectiondata['prob']>0.9]
+gri = sectiondata['Type'].value_counts()
+print(gri)

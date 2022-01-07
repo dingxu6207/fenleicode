@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Dec 31 21:12:15 2021
+Created on Mon Jan  3 09:29:53 2022
 
 @author: dingxu
 """
 
+import pandas as pd 
 import os
 from astropy.io import fits
 import matplotlib.pyplot as plt
@@ -17,6 +18,7 @@ from tensorflow.keras.models import load_model
 from scipy.fftpack import fft,ifft
 import winsound
 from scipy import interpolate
+
 
 def readfits(fits_file):
     with fits.open(fits_file, mode="readonly") as hdulist:
@@ -35,26 +37,6 @@ def readfits(fits_file):
         target = hdulist[0].header['OBJECT']
         return time, flux, target
     
-def zerophse(phases, resultmag):
-    listmag = resultmag.tolist()
-    listmag.extend(listmag)
-    listphrase = phases.tolist()
-    listphrase.extend(listphrase+np.max(1))
-    
-    nplistmag = np.array(listmag)
-    sortmag = np.sort(nplistmag)
-    maxindex = np.median(sortmag[-10:])
-    indexmag = listmag.index(maxindex)
-    nplistphrase = np.array(listphrase)
-    nplistphrase = nplistphrase-nplistphrase[indexmag]
-    nplistmag = np.array(listmag)
-    
-    phasemag = np.vstack((nplistphrase, nplistmag)) #纵向合并矩阵
-    phasemag = phasemag.T
-    phasemag = phasemag[phasemag[:,0]>=0]
-    phasemag = phasemag[phasemag[:,0]<=1]
-    return phasemag
-
 def NEWzerophse(phases, resultmag):
     listmag = resultmag.tolist()
     listmag.extend(listmag)
@@ -95,28 +77,45 @@ def pholddata(per, times, fluxes):
     resultmag = mag[sortIndi]
     return phases, resultmag
 
-path = 'J:\\TESSDATA\\section23\\' 
-file = 'tess2020078014623-s0023-0000000333870949-0177-s_lc.fits'
+    
+EAEW = 'EAEW.csv'
+EAEWDATA = pd.read_csv(EAEW)
 
-tbjd, fluxes, target = readfits(path+file)
-plt.figure(3)
-plt.plot(tbjd, fluxes, '.')
-plt.xlabel('BJD',fontsize=18)
-plt.ylabel('FLUX',fontsize=18) 
-plt.title(target)  
+EW = EAEWDATA[EAEWDATA['index']==3]
 
-period = 0.278219066820593
-phases, resultmag = pholddata(period, tbjd, fluxes)
-phasemag = NEWzerophse(phases, resultmag)
+hang,lie = EW.shape
+alltemp = []
+path = 'J:\\TESSDATA\\section'
+for i in range(0,hang):
+    section = EW.iloc[i,8]
+    pathsection = path+str(section)+'\\'
+ 
+    file = EW.iloc[i,1]
+    pathfile = pathsection+file
+    print(pathfile)
+    tbjd, fluxes, target = readfits(pathfile)
+    period = EW.iloc[i,2]
+    phases, resultmag = pholddata(period, tbjd, fluxes)
+    phasemag = NEWzerophse(phases, resultmag)
+    
+    temp = []
+    temp = [EW.iloc[i,5], EW.iloc[i,6], EW.iloc[i,7], EW.iloc[i,2], EW.iloc[i,3]]
+    alltemp.append(temp)
+    
+    plt.clf()
+    plt.figure(0)
+    ax = plt.gca()
+    ax.plot(phasemag[:,0], phasemag[:,1], '.')
+    plt.xlabel('phase',fontsize=18)
+    plt.ylabel('mag',fontsize=18) 
+    plt.title(target+str(EW.iloc[i,3]))
+    ax.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
+    ax.invert_yaxis() #y轴反向
+    plt.pause(0.0001)
+    
+    filesave = 'E:\\shunbianyuan\\phometry\\pipelinecode\\fenlei\\fenleicode\\ztfcodefft\\EWDATA\\'+target+'.txt'
+    np.savetxt(filesave, phasemag)
 
-SAVAPATH = 'E:\\shunbianyuan\\phometry\\pipelinecode\\fenlei\\fenleicode\\ztfcodefft\\TESSSN\\example\\EW\\'
-np.savetxt(SAVAPATH+target+'.csv', phasemag)
-
-plt.figure(0)
-plt.plot(phasemag[:,0], phasemag[:,1], '.')
-plt.xlabel('phase',fontsize=18)
-plt.ylabel('mag',fontsize=18) 
-ax = plt.gca()
-ax.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
-ax.invert_yaxis() #y轴反向
-plt.title(target) 
+name=['objectname','ra','dec','period', 'prob']     
+test = pd.DataFrame(columns=name, data=alltemp)#数据有三列，列名分别为one,two,three
+test.to_csv('EWINFO.csv',encoding='gbk',header=0)
