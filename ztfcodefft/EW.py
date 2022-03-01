@@ -67,7 +67,7 @@ def pholddata(per, times, fluxes):
     mags = -2.5*np.log10(fluxes)
     mags = mags-np.mean(mags)
     
-    lendata =  int((per/26)*1.9*len(times))
+    lendata =  int((per/26)*4*len(times))
      
     time = times[0:lendata]
     mag = mags[0:lendata]
