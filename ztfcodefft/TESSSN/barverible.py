@@ -38,8 +38,8 @@ cha = [3628, 1187, 1037, 443, 177, 71, 123]
 cn = [0,1,2,3,4,5,6]
 str1 = ('ROT', 'EA', 'EW', 'DSCT', 'RRAB', 'RRC', 'CEP')
 plt.figure(1)
-plt.bar(x, height=targets, width=1, tick_label=str1)
-plt.bar(x+1, height=cha, width=1, align="center")
+plt.bar(x, height=targets, width=1, tick_label=str1, label='Variables matched to VSX')
+plt.bar(x+1, height=cha, width=1, align="center", label='Variables of the same type')
 for a, b in zip(x, targets):
     plt.text(a, b + 0.05, '%.0f' % b, ha='center', va='bottom', fontsize=10)
 # 添加图例
@@ -51,3 +51,5 @@ for i in range(0,7):
 
 plt.xlabel('Type',fontsize=18)
 plt.ylabel('Numbers',fontsize=18)
+
+plt.legend()

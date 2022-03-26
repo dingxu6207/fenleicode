@@ -95,21 +95,21 @@ def pholddata(per, times, fluxes):
     resultmag = mag[sortIndi]
     return phases, resultmag
 
-path = 'J:\\TESSDATA\\section23\\' 
-file = 'tess2020078014623-s0023-0000000333870949-0177-s_lc.fits'
+path = 'J:\\TESSDATA\\section7\\' 
+file = 'tess2019006130736-s0007-0000000456763140-0131-s_lc.fits'
 
 tbjd, fluxes, target = readfits(path+file)
 plt.figure(3)
 plt.plot(tbjd, fluxes, '.')
-plt.xlabel('BJD',fontsize=18)
-plt.ylabel('FLUX',fontsize=18) 
+plt.xlabel('tbjd',fontsize=18)
+plt.ylabel('flux',fontsize=18) 
 plt.title(target)  
 
-period = 0.278219066820593
+period = 4.33235387734226
 phases, resultmag = pholddata(period, tbjd, fluxes)
 phasemag = NEWzerophse(phases, resultmag)
 
-SAVAPATH = 'E:\\shunbianyuan\\phometry\\pipelinecode\\fenlei\\fenleicode\\ztfcodefft\\TESSSN\\example\\EW\\'
+SAVAPATH = 'E:\\shunbianyuan\\phometry\\pipelinecode\\fenlei\\fenleicode\\ztfcodefft\\TESSSN\\example\\ROT\\'
 np.savetxt(SAVAPATH+target+'.csv', phasemag)
 
 plt.figure(0)

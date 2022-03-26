@@ -181,7 +181,7 @@ tbjd, fluxes = readfits(path+file)
 
 plt.figure(3)
 plt.plot(tbjd, fluxes, '.')
-plt.xlabel('JD',fontsize=14)
+plt.xlabel('tbjd',fontsize=14)
 plt.ylabel('FLUX',fontsize=14) 
 
 

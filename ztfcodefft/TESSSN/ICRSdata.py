@@ -96,9 +96,11 @@ hang,lie = radecname.shape
 fig, axes = plt.subplots(figsize=(8, 10), subplot_kw={'projection': 'aitoff'})
 axes.set_title("ICRS")
 #axes.plot(icrs.ra.wrap_at(180*u.deg).radian, icrs.dec.radian, linestyle='none', marker='.')
+colortemp = ['lightblue', 'g', 'r', 'c', 'm', 'y', 'k', 'w', 'orange']
 for i in range(0, hang):
     radata = npradec[i,0]
     decdata = npradec[i,1]
+    index = int(npradec[i,2])
     icrs = coord.SkyCoord(radata*u.degree, decdata*u.degree, frame='icrs')
-    axes.plot(icrs.ra.wrap_at(180*u.deg).radian, icrs.dec.radian,'.',markersize=2 , c = 'b')
+    axes.plot(icrs.ra.wrap_at(180*u.deg).radian, icrs.dec.radian,'.',markersize=2 , c = colortemp[index])
 plt.savefig('qiu.png')
