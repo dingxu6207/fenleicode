@@ -161,10 +161,10 @@ def pholddata(per, times, fluxes):
 
 
 
-path = 'I:\\TESSDATA\\section1\\DSCT\\' 
+path = 'J:\\EADATA\\' 
 
 #file = 'tess2018206045859-s0001-0000000419744996-0120-s_lc.fits'
-file = 'tess2018206045859-s0001-0000000348772511-0120-s_lc.fits'
+file = 'tess2021039152502-s0035-0000000383055703-0205-s_lc.fits'
 tbjd, fluxes = readfits(path+file)
 
 plt.figure(3)

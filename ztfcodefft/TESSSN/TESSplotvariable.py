@@ -172,10 +172,10 @@ def stddata(timedata, fluxdata, P):
     #return datanoise
 
 #path = 'J:\\TESSDATA\\section38\\ROT\\' 
-path = 'J:\\TESSDATA\\section2\\' 
+path = 'J:\\EADATA\\' 
 
 #file = 'tess2018206045859-s0001-0000000419744996-0120-s_lc.fits'
-file = 'tess2018234235059-s0002-0000000439399635-0121-s_lc.fits'
+file = 'tess2021258175143-s0043-0000000456905229-0214-s_lc.fits'
 
 tbjd, fluxes = readfits(path+file)
 
@@ -191,7 +191,7 @@ comper, wrongP, maxpower = computeperiod(tbjd, fluxes)
 stdodata1 = stddata(tbjd, fluxes, comper)
 stdodata2 = stddata(tbjd, fluxes, comper*2)
 print(stdodata2/stdodata1)
-if (stdodata2/stdodata1)>1.0:
+if (stdodata2/stdodata1)>0.9:
     P = comper*2
     phases, resultmag = pholddata(comper*2, tbjd, fluxes)
 else:
