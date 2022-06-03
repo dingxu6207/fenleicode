@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Aug 10 15:56:50 2021
+Created on Fri May 20 17:13:33 2022
 
 @author: dingxu
 """
@@ -16,6 +16,7 @@ import shutil
 from tensorflow.keras.models import load_model
 from scipy.fftpack import fft,ifft
 import winsound
+import os
 
 model = load_model('model10.hdf5')
 #model = load_model('modelrot.hdf5')
@@ -159,44 +160,36 @@ def pholddata(per, times, fluxes):
     resultmag = mag[sortIndi]
     return phases, resultmag
 
-
-
-path = 'J:\\EADATA\\' 
-
-#file = 'tess2018206045859-s0001-0000000419744996-0120-s_lc.fits'
-file = 'tess2018206045859-s0001-0000000091369561-0120-s_lc.fits'
-tbjd, fluxes = readfits(path+file)
-
-plt.figure(3)
-plt.plot(tbjd, fluxes, '.')
-plt.xlabel('JD',fontsize=14)
-plt.ylabel('FLUX',fontsize=14) 
-
-
-
-
-comper, wrongP, maxpower = computeperiod(tbjd, fluxes)
-pdmp, delta  = computePDM(1/comper, tbjd, fluxes, 1)
-if delta <0.7 and pdmp < 13:
-    pdmp2, delta2  = computePDM(1/(comper*2), tbjd, fluxes, 2)
-    print(delta/delta2)       
-    if (delta/delta2)<1.2:
-        p = comper
-        phases, resultmag = pholddata(comper, tbjd, fluxes)
-    else:
-        p = comper*2
-        phases, resultmag = pholddata(comper*2, tbjd, fluxes)
-
-
-index = classifyfftdata(phases, resultmag, p)
-
-plt.figure(0)
-plt.plot(phases, resultmag, '.')
-plt.xlabel('phase',fontsize=14)
-plt.ylabel('mag',fontsize=14) 
-ax = plt.gca()
-ax.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
-ax.invert_yaxis() #y轴反向
-
-
-#beep()
+path = 'J:\\EADATA\\'
+#path = 'J:\\pulsedata\\'
+target = 'J:\\EA\\'
+for root, dirs, files in os.walk(path):
+   for file in files:
+       strfile = os.path.join(root, file)
+       if (strfile[-5:] == '.fits'):
+           print(strfile)
+           tbjd, fluxes = readfits(path+file)
+           comper, wrongP, maxpower = computeperiod(tbjd, fluxes)
+           phases, resultmag = pholddata(comper*2, tbjd, fluxes)
+           
+           
+           plt.clf()
+           plt.figure(0)
+           plt.plot(phases, resultmag, '.')
+           plt.xlabel('phase',fontsize=14)
+           plt.ylabel('mag',fontsize=14) 
+           ax = plt.gca()
+           ax.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
+           ax.invert_yaxis() #y轴反向
+           plt.pause(0.1)
+           
+           a = input("input:")
+           if a=='':
+               continue
+           if a ==' ':
+               print('copy is ok!')
+               shutil.copy(strfile, target)
+               
+           if a =='d':
+               print('delete is ok!')
+               os.remove(strfile)

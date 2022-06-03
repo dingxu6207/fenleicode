@@ -55,6 +55,8 @@ print(gri)
 TYPE = sectiondata['index'].value_counts()
 print(TYPE)
 
+NEWSECT = sectiondata[sectiondata['section'] <= 27]
+print(NEWSECT['index'].value_counts())
 '''
 sectiondata = pd.read_csv('section1csv.csv')
 sectiondata = sectiondata[sectiondata['index']==3]

@@ -21,7 +21,7 @@ RRC = np.loadtxt(PATH+'RRC.txt')   #6
 #RSCVN = np.loadtxt(PATH+'RSCVN.txt')
 SR = np.loadtxt(PATH+'SR.txt')     #7
 SR[:,54] = 7
-CEP = np.loadtxt(PATH+'CEP.txt')   #8
+CEP = np.loadtxt(PATH+'CEP1.txt')   #8
 CEP[:,54] = 8
 
 dfdata1 = pd.DataFrame(ROT)
@@ -79,5 +79,5 @@ data6 = np.vstack((data5, SRdata))
 data7 = np.vstack((data6, MIRAdata))
 data8 = np.vstack((data7, CEPdata))
 
-np.savetxt('ZTFDATAFFTALLSrotN2.txt', data8)
+np.savetxt('ZTFDATAFFTALLSrotN3.txt', data8)
 

@@ -14,8 +14,8 @@ from scipy import interpolate
 from tensorflow.keras.models import load_model
 from scipy.fftpack import fft,ifft
 
-path = 'E:\\shunbianyuan\\phometry\\pipelinecode\\fenlei\\testdata\\CEP\\'
-file = 'AP36430418_3.4395372.csv'
+path = 'E:\\shunbianyuan\\phometry\\pipelinecode\\fenlei\\testdata\\EW\\'
+file = 'AP3226652_0.4189323.csv'
 data = pd.read_csv(path+file, sep = ',' )
 
 hjdmag = data[['hjd', 'mag']]
@@ -26,7 +26,7 @@ npmag = nphjmag[:,1]
 
 
 
-P = 3.4395372
+P = 0.4189323
 phases = foldAt(npjd, P)
 sortIndi = np.argsort(phases)
 phases = phases[sortIndi]
@@ -44,7 +44,7 @@ abs_y = np.abs(fft_y)
 angle_y = np.angle(fft_y)            #取复数的角度
 normalization_y = abs_y/N            #归一化处理（双边频谱）                              
 normalization_half_y = normalization_y[range(int(N/2))] 
-normalization_half_y[0] = P/10
+normalization_half_y[0] = P
 
 
 plt.figure(0)
@@ -59,13 +59,13 @@ ax.invert_yaxis() #y轴反向
 
 sy1 = np.copy(normalization_half_y)
 #model = load_model('modelrot.hdf5')#eclipseothers,ztfmodule
-sy1 = sy1[0:10]
-model = load_model('model10N2.hdf5')#eclipseothers,ztfmodule
-nparraydata = np.reshape(sy1,(1,10))
+sy1 = sy1[0:50]
+model = load_model('model50p10cep.hdf5')#eclipseothers,ztfmodule
+nparraydata = np.reshape(sy1,(1,50))
 prenpdata = model.predict(nparraydata)
 
 index = np.argmax(prenpdata[0])
-print(index)
+print(index, np.max(prenpdata[0]))
 
 if index == 0:
     plt.title('Prediction is ROT')

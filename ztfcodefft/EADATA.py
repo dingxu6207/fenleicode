@@ -20,14 +20,14 @@ index = data.iloc[0,4]
 section = data.iloc[0,8]
 
 alldatapath = 'J:\\TESSDATA\\'
-dstpath = 'J:\\EADATA\\'
+dstpath = 'J:\\EWDATA\\'
 for i in range(0,hang):
     index = data.iloc[i,4]
     section = data.iloc[i,8]
     name = data.iloc[i,1]
     
     
-    if index == 2:
+    if index == 3:
         print(alldatapath+'section'+str(section)+'\\'+name)
         filename = alldatapath+'section'+str(section)+'\\'+name
         shutil.copy(filename, dstpath)

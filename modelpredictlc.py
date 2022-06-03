@@ -16,7 +16,7 @@ from scipy.fftpack import fft,ifft
 import pandas as pd
 
 #model = load_model('modelrot.hdf5')
-model = load_model('model10N2.hdf5')
+model = load_model('model50p10cep.hdf5')
 model.summary()
 
 def classifyfftdata(phases, resultmag, P):
@@ -31,11 +31,11 @@ def classifyfftdata(phases, resultmag, P):
     abs_y = np.abs(fft_y) 
     normalization_y = abs_y/N            #归一化处理（双边频谱）                              
     normalization_half_y = normalization_y[range(int(N/2))] 
-    normalization_half_y[0] = P/10
+    normalization_half_y[0] = P
     sy1 = np.copy(normalization_half_y)
     #model = load_model('modelall.hdf5')#eclipseothers,ztfmodule
-    sy1 = sy1[0:10]
-    nparraydata = np.reshape(sy1,(1,10))
+    sy1 = sy1[0:50]
+    nparraydata = np.reshape(sy1,(1,50))
     prenpdata = model.predict(nparraydata)
 
     index = np.argmax(prenpdata[0])
@@ -58,7 +58,7 @@ nphjmag = np.loadtxt(file)
 npjd = nphjmag[:,0][0:300]
 npmag = nphjmag[:,1][0:300]
 
-P = 3.404 
+P = 3.404
 
 phases, resultmag = pholddata(P, npjd, npmag)
 
