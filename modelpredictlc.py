@@ -16,7 +16,7 @@ from scipy.fftpack import fft,ifft
 import pandas as pd
 
 #model = load_model('modelrot.hdf5')
-model = load_model('model50p10cep.hdf5')
+model = load_model('modelASAS.hdf5')
 model.summary()
 
 def classifyfftdata(phases, resultmag, P):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Aug 10 15:56:50 2021
+Created on Tue Dec  7 23:04:24 2021
 
 @author: dingxu
 """
@@ -15,10 +15,11 @@ from astropy.timeseries import LombScargle
 import shutil
 from tensorflow.keras.models import load_model
 from scipy.fftpack import fft,ifft
+import pandas as pd  
 import winsound
 
-model = load_model('model10.hdf5')
-#model = load_model('modelrot.hdf5')
+#model = load_model('model50p10cep.hdf5')
+model = load_model('modelASAS.hdf5')
 #model = load_model('cnnmodel.hdf5')
 def beep():
     duration = 5000  # 持续时间以毫秒为单位，这里是5秒
@@ -47,16 +48,15 @@ def classifyfftdata(phases, resultmag, P):
     abs_y = np.abs(fft_y) 
     normalization_y = abs_y/N            #归一化处理（双边频谱）                              
     normalization_half_y = normalization_y[range(int(N/2))] 
-    normalization_half_y[0] = P/10
+    normalization_half_y[0] = P
     sy1 = np.copy(normalization_half_y)
-    #model = load_model('modelall.hdf5')#eclipseothers,ztfmodule
-    #nparraydata = np.reshape(sy1,(1,50,1)) #cnnmodel
-    sy1 = sy1[0:10]
-    nparraydata = np.reshape(sy1,(1,10)) #mlpmodel
+
+    sy1 = sy1[0:50]
+    nparraydata = np.reshape(sy1,(1,50)) #mlpmodel
     prenpdata = model.predict(nparraydata)
 
     index = np.argmax(prenpdata[0])
-    return index
+    return index, np.max(prenpdata[0])
 
 def readfits(fits_file):
     with fits.open(fits_file, mode="readonly") as hdulist:
@@ -72,8 +72,10 @@ def readfits(fits_file):
         time = time.flatten()
         flux = pdcsap_fluxes[indexflux]
         flux =  flux.flatten()
-        
-        return time, flux
+        objectname = hdulist[0].header['OBJECT']
+        RA = hdulist[0].header['RA_OBJ']
+        DEC = hdulist[0].header['DEC_OBJ']
+        return time, flux, objectname, RA, DEC
 
 def zerophse(phases, resultmag):
     listmag = resultmag.tolist()
@@ -159,56 +161,81 @@ def pholddata(per, times, fluxes):
     resultmag = mag[sortIndi]
     return phases, resultmag
 
+def stddata(timedata, fluxdata, P):
+    yuanflux = np.copy(fluxdata)
+    yuanmag = -2.5*np.log10(yuanflux)
+    
+    phases, resultmag = pholddata(P, timedata, fluxdata)
+    datamag = np.copy(resultmag)
+    datanoise = np.diff(datamag,2).std()/np.sqrt(6)
+    stddata = np.std(yuanmag)
+    return stddata/datanoise
+
+def showfig(phases, resultmag, index):
+    plt.figure(1)
+    plt.plot(phases, resultmag, '.')
+    plt.xlabel('phase',fontsize=14)
+    plt.ylabel('mag',fontsize=14)
+    plt.title(str(index))
+    ax = plt.gca()
+    ax.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
+    ax.invert_yaxis() #y轴反向
+    plt.pause(0.1)
+    plt.clf()
+
+path = 'J:\\TESSDATA\\section1\\'
 
 
-path = 'J:\\TESSDATA\\section1\\' 
-#
-#for root, dirs, files in os.walk(path):
-#   for file in files:
-#       strfile = os.path.join(root, file)
-#       if (strfile[-5:] == '.fits'):
-#           print(strfile)
-#           timed, fluxd = readfits(strfile)
-#           plt.clf()
-#           plt.figure(0)
-#           plt.plot(timed, fluxd, '.')
-#           plt.pause(0.1)
+count = 0
+tempfile = []
+alltemp = []
+for root, dirs, files in os.walk(path):
+   for file in files:
+       strfile = os.path.join(root, file)
+       if (strfile[-5:] == '.fits'):
+           print(strfile)
+       try:
+               tbjd, fluxes, objectname, RA, DEC = readfits(strfile)
+               count = count+1
+               print('*********it is time'+str(count)+'********************')
+               comper, wrongP, maxpower = computeperiod(tbjd, fluxes)
+               #计算两个周期的标准差
+               stdodata1 = stddata(tbjd, fluxes, comper)
+               stdodata2 = stddata(tbjd, fluxes, comper*2)
+               
+               print('stdodata1= '+str(stdodata1))
+               print('stdodata2= '+str(stdodata2))
+               print('period= '+str(comper))
+                       
+               if wrongP == 0 and (stdodata1>2 or stdodata2>2):
+                   print('it is a variable star!')
+               
+                   if (stdodata2/stdodata1)>1.5:
+                       P = comper*2
+                       phases, resultmag = pholddata(comper*2, tbjd, fluxes)
+                   else:
+                       P = comper
+                       phases, resultmag = pholddata(comper, tbjd, fluxes)
            
+                   index,prob = classifyfftdata(phases, resultmag, P)
+                            
+                   tempfile = [file, P, prob, index, objectname, RA, DEC, wrongP]
+                   alltemp.append(tempfile)
+                   
+                   showfig(phases, resultmag, index)
+                       
+                   print('**************'+str(index)+'is ok!'+'********************')
+                                 
+               else:
+                   #shutil.copy(strfile,NONpath)
+                   print('it is nonstar!')
+                    
+       except:
+              continue
 
-
-file = 'tess2018206045859-s0001-0000000309658221-0120-s_lc.fits'
-tbjd, fluxes = readfits(path+file)
-
-plt.figure(3)
-plt.plot(tbjd, fluxes, '.')
-plt.xlabel('JD',fontsize=14)
-plt.ylabel('FLUX',fontsize=14) 
-
-#
-#
-#
-#comper, wrongP, maxpower = computeperiod(tbjd, fluxes)
-#pdmp, delta  = computePDM(1/comper, tbjd, fluxes, 1)
-#if delta <0.7 and pdmp < 13:
-#    pdmp2, delta2  = computePDM(1/(comper*2), tbjd, fluxes, 2)
-#    print(delta/delta2)       
-#    if (delta/delta2)<1.2:
-#        p = comper
-#        phases, resultmag = pholddata(comper, tbjd, fluxes)
-#    else:
-#        p = comper*2
-#        phases, resultmag = pholddata(comper*2, tbjd, fluxes)
-#
-#
-#index = classifyfftdata(phases, resultmag, p)
-#
-#plt.figure(0)
-#plt.plot(phases, resultmag, '.')
-#plt.xlabel('phase',fontsize=14)
-#plt.ylabel('mag',fontsize=14) 
-#ax = plt.gca()
-#ax.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
-#ax.invert_yaxis() #y轴反向
-
-
-#beep()
+name=['name','period','prob','index', 'objectname', 'RA', 'DEC', 'wrongP']      
+test = pd.DataFrame(columns=name,data=alltemp)#数据有三列，列名分别为one,two,three
+test.to_csv('J:\\TESSDATA\\CSV\\testcsv1.csv',encoding='gbk')
+beep() 
+               
+               
