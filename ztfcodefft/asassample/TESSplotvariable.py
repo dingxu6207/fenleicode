@@ -17,8 +17,9 @@ from tensorflow.keras.models import load_model
 from scipy.fftpack import fft,ifft
 import winsound
 from scipy import interpolate
+import pandas as pd
 
-model = load_model('model10.hdf5')
+#model = load_model('model10.hdf5')
 #model = load_model('modelrot.hdf5')
 #model = load_model('cnnmodel.hdf5')
 def beep():
@@ -161,8 +162,7 @@ def pholddata(per, times, fluxes):
     return phases, resultmag
 
 
-
-path = 'X:\\DingXu\\pulsedata\\' 
+ 
 #
 #for root, dirs, files in os.walk(path):
 #   for file in files:
@@ -175,54 +175,23 @@ path = 'X:\\DingXu\\pulsedata\\'
 #           plt.plot(timed, fluxd, '.')
 #           plt.pause(0.1)
            
+file = 'tessvarible.csv'
+data = pd.read_csv(file)
 
-
-file = 'tess2018206045859-s0001-0000000091369561-0120-s_lc.fits'
-tbjd, fluxes = readfits(path+file)
-
-
-
-
-
-s = np.diff(fluxes,2).std()/np.sqrt(6)
-num = len(fluxes)
-sx1 = tbjd
-s = 0.1
-func1 = interpolate.UnivariateSpline(sx1, fluxes,s=1)#强制通过所有点
-sy1 = func1(sx1)
-
-
-plt.figure(0)
-plt.plot(tbjd, fluxes, '.')
-plt.plot(sx1, sy1, '.')
-plt.xlabel('JD',fontsize=14)
-plt.ylabel('FLUX',fontsize=14) 
-
-#
-#
-#
-#comper, wrongP, maxpower = computeperiod(tbjd, fluxes)
-#pdmp, delta  = computePDM(1/comper, tbjd, fluxes, 1)
-#if delta <0.7 and pdmp < 13:
-#    pdmp2, delta2  = computePDM(1/(comper*2), tbjd, fluxes, 2)
-#    print(delta/delta2)       
-#    if (delta/delta2)<1.2:
-#        p = comper
-#        phases, resultmag = pholddata(comper, tbjd, fluxes)
-#    else:
-#        p = comper*2
-#        phases, resultmag = pholddata(comper*2, tbjd, fluxes)
-#
-#
-#index = classifyfftdata(phases, resultmag, p)
-#
-#plt.figure(0)
-#plt.plot(phases, resultmag, '.')
-#plt.xlabel('phase',fontsize=14)
-#plt.ylabel('mag',fontsize=14) 
-#ax = plt.gca()
-#ax.yaxis.set_ticks_position('left') #将y轴的位置设置在右边
-#ax.invert_yaxis() #y轴反向
-
-
-#beep()
+hang,lie = data.shape
+alldatapath = 'J:\\TESSDATA\\'
+for i in range(0,hang):
+    index = data.iloc[i,4]
+    section = data.iloc[i,11]
+    name = data.iloc[i,1]
+    
+    
+    if index == 2:
+        print(alldatapath+'section'+str(section)+'\\'+name)
+        filename = alldatapath+'section'+str(section)+'\\'+name
+        timed, fluxd = readfits(filename)
+        plt.clf()
+        plt.figure(0)
+        plt.plot(timed[0:2000], fluxd[0:2000], '.')
+        plt.pause(0.1)
+        
