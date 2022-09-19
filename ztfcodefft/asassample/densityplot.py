@@ -59,7 +59,6 @@ sns.kdeplot(ewp, label="EW", alpha=.9, bw =0.08)
 sns.kdeplot(rrcp, label="RRC", alpha=.9, bw =0.08)
 sns.kdeplot(rrabp, label="RRAB", alpha=.9, bw =0.08)
 sns.kdeplot(dsctp, label="DSCT", alpha=.9, bw =0.08)
-plt.legend()
 
 plt.xlabel('Classification probability',fontsize=18)
 plt.ylabel('Probability density',fontsize=18)

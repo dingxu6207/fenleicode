@@ -29,7 +29,7 @@ indices = range(len(matrix))
 plt.xticks(indices, ['ROT','DSCT','EA','EW','MIRA','RRAB','RRC','SR','CEP'])
 plt.yticks(indices, ['ROT','DSCT','EA','EW','MIRA','RRAB','RRC','SR','CEP'])
 
-#plt.colorbar()
+plt.colorbar()
 
 plt.xlabel('predict label',fontsize=20)
 plt.ylabel('actual label',fontsize=20)
@@ -42,7 +42,7 @@ for first_index in range(len(matrix)):    #第几行
         plt.text(first_index, second_index, matrix[first_index][second_index])
 # 在matlab里面可以对矩阵直接imagesc(confusion)
 # 显示
-plt.show()
+#plt.show()
 
 plt.savefig('matrix.png')
 

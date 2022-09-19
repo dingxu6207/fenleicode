@@ -102,6 +102,5 @@ for i in range(0, hang):
     decdata = npradec[i,1]
     index = int(npradec[i,2])
     icrs = coord.SkyCoord(radata*u.degree, decdata*u.degree, frame='icrs')
-    axes.text(0,0.5,'EA')
     axes.plot(icrs.ra.wrap_at(180*u.deg).radian, icrs.dec.radian,'.',markersize=2 , c = colortemp[index])
 plt.savefig('qiu.png')
